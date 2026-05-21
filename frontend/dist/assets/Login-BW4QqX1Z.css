@@ -1,0 +1,1 @@
+.animate-slow-spin[data-v-123d5422]{animation:spin-123d5422 20s linear infinite}.animate-slow-spin-reverse[data-v-123d5422]{animation:spin-123d5422 25s linear infinite reverse}@keyframes spin-123d5422{0%{transform:rotate(0)}to{transform:rotate(360deg)}}
