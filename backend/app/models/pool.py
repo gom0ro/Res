@@ -5,9 +5,10 @@ import enum
 from sqlalchemy import Enum
 
 class PoolTariffType(str, enum.Enum):
-    HOURLY = "hourly"
-    DAILY = "daily"
+    HOURLY = "hourly"   # оставляем для совместимости со старыми записями
+    ADULT = "adult"
     CHILD = "child"
+    DAILY = "daily"
     VIP = "vip"
 
 class PoolVisitStatus(str, enum.Enum):
@@ -31,3 +32,4 @@ class PoolVisit(Base):
     status = Column(Enum(PoolVisitStatus), default=PoolVisitStatus.ACTIVE)
     total_amount = Column(Float, default=0.0)
     is_paid = Column(Boolean, default=False)
+    payment_method = Column(String, nullable=True)  # 'cash' or 'kaspi'

@@ -9,6 +9,7 @@ class OrderStatus(str, enum.Enum):
     PREPARING = "preparing"
     READY = "ready"
     SERVED = "served"
+    COMPLETED = "completed"   # доставлен официантом
     PAID = "paid"
     CANCELLED = "cancelled"
 

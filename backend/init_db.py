@@ -6,6 +6,9 @@ from app.models.user import User, Role
 from app.core.security import get_password_hash
 from app.core.config import settings
 
+# Import all models so Base.metadata includes all tables
+import app.models  # noqa: F401
+
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -13,12 +16,12 @@ async def init_db():
     async with AsyncSessionLocal() as db:
         # Create roles
         default_roles = {
-            "admin": "Dashboard,Pool,Loungers,Bar,Steam,Finance,Kitchen,Staff",
+            "admin": "Dashboard,Pool,Loungers,Bar,Steam,Finance,Kitchen,Staff,Analytics,Stock",
             "reception": "Pool,Loungers,Steam",
             "waiter": "Waiter",
             "bartender": "Bar,Finance",
             "cashier": "Finance",
-            "manager": "Dashboard,Pool,Loungers,Bar,Steam,Finance,Kitchen,Staff",
+            "manager": "Dashboard,Pool,Loungers,Bar,Steam,Finance,Kitchen,Staff,Analytics,Stock",
             "cook": "Kitchen"
         }
         for role_name, tabs in default_roles.items():

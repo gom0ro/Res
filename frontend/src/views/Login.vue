@@ -1,62 +1,78 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-[#0a0f1c] relative overflow-hidden font-sans">
-    
-    <!-- Animated background elements -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="absolute w-[600px] h-[600px] bg-primary-600/20 rounded-full blur-[100px] -top-20 -left-20 animate-slow-spin mix-blend-screen"></div>
-      <div class="absolute w-[800px] h-[800px] bg-purple-600/20 rounded-full blur-[120px] top-1/2 -right-40 animate-slow-spin-reverse mix-blend-screen"></div>
-      <div class="absolute w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[80px] bottom-0 left-1/4 animate-pulse mix-blend-screen"></div>
+  <div class="min-h-[100dvh] flex items-center justify-center relative overflow-hidden app-shell safe-top safe-bottom px-4 py-8">
+
+    <PremiumBackground />
+    <div class="fixed top-6 right-6 z-20">
+      <ThemeToggle />
     </div>
-    
-    <div class="glass-dark p-10 sm:p-12 rounded-[2rem] w-full max-w-md z-10 shadow-2xl shadow-black/50 border border-white/10 mx-4 backdrop-blur-2xl transition-transform transform hover:scale-[1.01] duration-500">
-      
-      <div class="text-center mb-10">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary-500 to-purple-500 shadow-lg shadow-primary-500/30 mb-6 relative group">
-          <div class="absolute inset-0 bg-white/20 rounded-2xl blur group-hover:blur-md transition-all"></div>
-          <svg class="w-8 h-8 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+
+    <div
+      v-motion
+      :initial="{ opacity: 0, y: 24, scale: 0.98 }"
+      :enter="{ opacity: 1, y: 0, scale: 1, transition: { duration: 550, ease: [0.22, 1, 0.36, 1] } }"
+      class="relative z-10 w-full max-w-[22rem] mx-4"
+    >
+      <div class="glass-card glass-card--flat rounded-premium-xl p-8 sm:p-9 !shadow-modal">
+        <div class="flex flex-col items-center mb-8">
+          <div
+            class="w-14 h-14 rounded-premium-xl flex items-center justify-center mb-5"
+            style="background: linear-gradient(135deg, var(--accent-from), var(--accent-to)); box-shadow: var(--glow-md)"
+          >
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <h1 class="text-2xl font-bold text-ink tracking-tight">Resort <span class="text-gradient">OS</span></h1>
+          <p class="text-ink-muted text-sm mt-1.5 font-medium">Панель управления курортом</p>
         </div>
-        <h1 class="text-3xl font-black text-white mb-2 tracking-tight">Resort Manager</h1>
-        <p class="text-gray-400 font-medium">Войдите в панель управления</p>
+
+        <form class="space-y-5" @submit.prevent="handleLogin">
+          <div
+            v-motion
+            :initial="{ opacity: 0, y: 8 }"
+            :enter="{ opacity: 1, y: 0, transition: { delay: 120, duration: 400 } }"
+          >
+            <label class="block text-[10px] font-semibold text-ink-muted mb-2 uppercase tracking-[0.12em]">Email</label>
+            <div class="relative">
+              <input v-model="email" type="email" required placeholder="admin@resort.com" class="input-premium pl-10" />
+              <svg class="w-4 h-4 text-ink-muted absolute left-3.5 top-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+              </svg>
+            </div>
+          </div>
+
+          <div
+            v-motion
+            :initial="{ opacity: 0, y: 8 }"
+            :enter="{ opacity: 1, y: 0, transition: { delay: 180, duration: 400 } }"
+          >
+            <label class="block text-[10px] font-semibold text-ink-muted mb-2 uppercase tracking-[0.12em]">Пароль</label>
+            <div class="relative">
+              <input v-model="password" type="password" required placeholder="••••••••" class="input-premium pl-10" />
+              <svg class="w-4 h-4 text-ink-muted absolute left-3.5 top-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+            </div>
+          </div>
+
+          <button
+            v-motion
+            :initial="{ opacity: 0 }"
+            :enter="{ opacity: 1, transition: { delay: 260, duration: 400 } }"
+            type="submit"
+            :disabled="loading"
+            class="btn-primary w-full py-3.5 mt-1 flex items-center justify-center gap-2"
+          >
+            <svg v-if="loading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            {{ loading ? 'Вход...' : 'Войти в систему' }}
+          </button>
+        </form>
+
+        <p class="text-center text-ink-muted text-[11px] mt-7 font-medium">Resort Management · v1.0</p>
       </div>
-      
-      <form @submit.prevent="handleLogin" class="space-y-6">
-        <div>
-          <label class="block text-sm font-semibold text-gray-300 mb-2">Email</label>
-          <div class="relative">
-            <input 
-              v-model="email" 
-              type="email" 
-              required
-              class="w-full px-5 py-4 pl-12 rounded-xl bg-dark-surface/50 border border-dark-border text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 outline-none backdrop-blur-sm"
-              placeholder="admin@resort.com"
-            />
-            <svg class="w-5 h-5 text-gray-500 absolute left-4 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path></svg>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-semibold text-gray-300 mb-2">Пароль</label>
-          <div class="relative">
-            <input 
-              v-model="password" 
-              type="password" 
-              required
-              class="w-full px-5 py-4 pl-12 rounded-xl bg-dark-surface/50 border border-dark-border text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 outline-none backdrop-blur-sm"
-              placeholder="••••••••"
-            />
-            <svg class="w-5 h-5 text-gray-500 absolute left-4 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-          </div>
-        </div>
-        
-        <button 
-          type="submit" 
-          :disabled="loading"
-          class="w-full py-4 px-4 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white rounded-xl font-bold text-lg shadow-lg shadow-primary-500/20 transition-all duration-300 focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 focus:ring-offset-dark-bg disabled:opacity-50 flex justify-center items-center hover:-translate-y-1"
-        >
-          <span v-if="loading" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></span>
-          {{ loading ? 'Вход в систему...' : 'Войти' }}
-        </button>
-      </form>
     </div>
   </div>
 </template>
@@ -66,6 +82,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { toast } from 'vue3-toastify'
+import PremiumBackground from '../components/ui/PremiumBackground.vue'
+import ThemeToggle from '../components/ui/ThemeToggle.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -77,30 +95,13 @@ const loading = ref(false)
 const handleLogin = async () => {
   loading.value = true
   try {
-    const success = await authStore.login(email.value, password.value)
-    if (success) {
-      toast.success('Добро пожаловать!')
-      router.push('/')
-    } else {
-      toast.error('Неверный логин или пароль')
-    }
+    await authStore.login(email.value, password.value)
+    toast.success('Добро пожаловать!')
+    router.push('/')
+  } catch (err) {
+    toast.error(err.response?.data?.detail || 'Ошибка входа')
   } finally {
     loading.value = false
   }
 }
 </script>
-
-<style scoped>
-.animate-slow-spin {
-  animation: spin 20s linear infinite;
-}
-
-.animate-slow-spin-reverse {
-  animation: spin 25s linear infinite reverse;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-</style>

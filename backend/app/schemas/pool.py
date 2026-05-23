@@ -20,6 +20,7 @@ class PoolVisit(PoolVisitBase):
     status: PoolVisitStatus
     total_amount: float
     is_paid: bool
+    payment_method: Optional[str] = None
 
     class Config:
         from_attributes = True

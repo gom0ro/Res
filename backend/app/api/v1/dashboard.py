@@ -35,7 +35,8 @@ async def get_dashboard_stats(db: AsyncSession = Depends(get_db)):
     active_orders_res = await db.execute(
         select(func.count(Order.id)).filter(
             Order.status != OrderStatus.PAID, 
-            Order.status != OrderStatus.CANCELLED
+            Order.status != OrderStatus.CANCELLED,
+            Order.status != OrderStatus.COMPLETED
         )
     )
     active_orders_count = active_orders_res.scalar() or 0

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col space-y-6 h-full">
+  <div class="page-content page-stack flex flex-col min-h-0 flex-1">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
@@ -42,7 +42,7 @@
             <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             Выберите топчан
           </h3>
-          <div class="grid grid-cols-3 gap-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[min(40dvh,300px)] overflow-y-auto custom-scrollbar pr-1">
             <button
               v-for="l in occupiedLoungers"
               :key="l.id"
@@ -132,7 +132,7 @@
         </div>
 
         <!-- Product grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 overflow-y-auto custom-scrollbar flex-1 max-h-[calc(100vh-320px)]">
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 overflow-y-auto custom-scrollbar flex-1 min-h-0 max-h-[min(55dvh,28rem)] lg:max-h-none">
           <div
             v-for="p in filteredProducts"
             :key="p.id"
@@ -226,7 +226,7 @@
             <span class="text-sm text-gray-300">Забронирован</span>
           </div>
         </div>
-        <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
           <div
             v-for="l in loungers"
             :key="l.id"

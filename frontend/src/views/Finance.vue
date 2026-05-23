@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col space-y-6 h-full">
+  <div class="page-content page-stack flex flex-col min-h-0 flex-1">
     <!-- Header -->
     <div>
       <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Финансы & Касса</h1>
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="stats-grid">
       <div class="glass-dark border border-dark-border rounded-3xl p-6 flex flex-col justify-between">
         <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Общая выручка</span>
         <h2 class="text-3xl font-black text-white mt-2">{{ stats.total }} ₸</h2>
@@ -286,7 +286,7 @@ const fetchUnpaidOrders = async () => {
   try {
     const res = await api.get('/bar/orders')
     // Filter active unpaid waiter/bar orders
-    unpaidOrders.value = res.data.filter(o => !o.is_paid && o.status !== 'cancelled')
+    unpaidOrders.value = res.data.filter(o => !o.is_paid && o.status !== 'cancelled' && o.status !== 'completed')
   } catch(e) {}
 }
 

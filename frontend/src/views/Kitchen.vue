@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col space-y-6 h-full">
+  <div class="page-content page-stack flex flex-col min-h-0 flex-1">
     <!-- Header -->
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
       <div>
         <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Монитор Кухни (KDS)</h1>
         <p class="text-gray-400 font-medium">Экран приготовления заказов в реальном времени</p>
@@ -35,25 +35,25 @@
         :class="selectedKitchenCategoryId === cat.id ? 'bg-orange-600 border-orange-600 text-white' : 'bg-dark-surface/50 border-dark-border text-gray-400 hover:text-white'"
         :style="selectedKitchenCategoryId === cat.id ? {} : { borderColor: cat.color ? cat.color + '40' : undefined, color: cat.color || undefined }"
       >
-        <span>{{ cat.icon || '🍽️' }}</span>
+        <span>{{ cat.icon || '' }}</span>
         <span>{{ cat.name }}</span>
       </button>
     </div>
 
     <!-- Kitchen Orders Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 flex-1 overflow-y-auto pr-2 custom-scrollbar h-full">
       <div 
         v-for="o in filteredOrders" 
         :key="o.id" 
-        class="glass-dark border rounded-3xl p-6 flex flex-col justify-between transition-all"
+        class="glass-dark border rounded-3xl p-4 md:p-6 flex flex-col justify-between transition-all"
         :class="o.status === 'preparing' ? 'border-blue-500/30 bg-blue-500/5' : 'border-red-500/30 bg-red-500/5 animate-pulse-subtle'"
       >
         <div>
           <!-- Card Header -->
-          <div class="flex justify-between items-start mb-4">
+          <div class="flex justify-between items-start mb-2 md:mb-4">
             <div>
               <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Заказ #{{ o.id }}</span>
-              <h3 class="text-xl font-black text-white mt-1">
+              <h3 class="text-lg md:text-xl font-black text-white mt-1">
                 {{ o.lounger_id ? `Топчан T-${o.lounger_id}` : 'У барной стойки' }}
               </h3>
             </div>
@@ -72,9 +72,9 @@
 
           <!-- Order Items (Large font for kitchen) -->
           <div class="border-t border-dark-border/50 pt-4 space-y-3">
-            <div v-for="item in o.items" :key="item.id" class="flex justify-between text-base">
+            <div v-for="item in o.items" :key="item.id" class="flex justify-between text-sm">
               <span class="text-white font-bold">{{ item.product?.name || 'Блюдо' }}</span>
-              <span class="text-orange-400 font-black text-lg">× {{ item.quantity }}</span>
+              <span class="text-orange-400 font-black text-base">× {{ item.quantity }}</span>
             </div>
           </div>
         </div>
@@ -110,8 +110,8 @@
 
     <!-- Modal for Adding Dish -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-md w-full shadow-2xl relative">
-        <button @click="showAddModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
+      <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-full md:max-w-md w-full shadow-2xl relative">
+        <button @click="showAddModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
         <h3 class="text-2xl font-bold text-white mb-6">Новое блюдо / Товар</h3>
         <form @submit.prevent="createProduct" class="space-y-4">
           <div>
@@ -141,8 +141,8 @@
     </div>
     <!-- Modal for Managing Categories -->
     <div v-if="showCategoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-md w-full shadow-2xl relative flex flex-col max-h-[90vh]">
-        <button @click="showCategoryModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
+      <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-full md:max-w-md w-full shadow-2xl relative flex flex-col max-h-[90vh]">
+        <button @click="showCategoryModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
         <h3 class="text-2xl font-bold text-white mb-4">Управление категориями</h3>
         
         <!-- List of Categories -->
@@ -152,7 +152,7 @@
             <div v-if="editingCategoryId !== cat.id" class="flex-1 flex justify-between items-center">
               <div>
                 <p class="text-white font-bold text-sm flex items-center gap-2">
-                  <span class="text-lg" :style="{ color: cat.color || undefined }">{{ cat.icon || '🍽️' }}</span>
+                  <span class="text-lg" :style="{ color: cat.color || undefined }">{{ cat.icon || '' }}</span>
                   <span>{{ cat.name }}</span>
                 </p>
                 <p v-if="cat.description" class="text-xs text-gray-400">{{ cat.description }}</p>
@@ -236,7 +236,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { api } from '../stores/auth'
 import { toast } from 'vue3-toastify'
-
+import { XMarkIcon as XIcon } from '@heroicons/vue/24/solid'
 const orders = ref([])
 const showAddModal = ref(false)
 const showCategoryModal = ref(false)
@@ -248,7 +248,7 @@ const editForm = ref({
   name: '',
   description: '',
   color: '#4B5563',
-  icon: '🍽️',
+  icon: '',
   position: 0
 })
 
@@ -262,7 +262,7 @@ const newCategory = ref({
   name: '',
   description: '',
   color: '#4B5563',
-  icon: '🍲'
+  icon: ''
 })
 
 const activeOrdersCount = computed(() => orders.value.length)
@@ -298,7 +298,7 @@ const startEdit = (cat) => {
     name: cat.name,
     description: cat.description || '',
     color: cat.color || '#4B5563',
-    icon: cat.icon || '🍽️',
+    icon: cat.icon || '',
     position: cat.position || 0
   }
 }

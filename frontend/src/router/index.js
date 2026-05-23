@@ -57,6 +57,16 @@ const routes = [
         path: 'waiter',
         name: 'Waiter',
         component: () => import('../views/Waiter.vue')
+      },
+      {
+        path: 'analytics',
+        name: 'Analytics',
+        component: () => import('../views/Analytics.vue')
+      },
+      {
+        path: 'stock',
+        name: 'Stock',
+        component: () => import('../views/Stock.vue')
       }
     ]
   }
@@ -88,7 +98,7 @@ router.beforeEach(async (to, from, next) => {
       const allowedTabsStr = user?.role?.allowed_tabs || ''
       if (allowedTabsStr) {
         const allowedList = allowedTabsStr.split(',')
-        const layoutRouteNames = ['Dashboard', 'Pool', 'Loungers', 'Bar', 'Steam', 'Finance', 'Kitchen', 'Staff', 'Waiter']
+        const layoutRouteNames = ['Dashboard', 'Pool', 'Loungers', 'Bar', 'Steam', 'Finance', 'Kitchen', 'Staff', 'Waiter', 'Analytics', 'Stock']
         const firstAllowed = layoutRouteNames.find(name => allowedList.includes(name))
         if (firstAllowed) {
           next({ name: firstAllowed })
@@ -119,7 +129,7 @@ router.beforeEach(async (to, from, next) => {
         const allowedTabsStr = user.role?.allowed_tabs || ''
         if (allowedTabsStr) {
           const allowedList = allowedTabsStr.split(',')
-          const layoutRouteNames = ['Dashboard', 'Pool', 'Loungers', 'Bar', 'Steam', 'Finance', 'Kitchen', 'Staff', 'Waiter']
+          const layoutRouteNames = ['Dashboard', 'Pool', 'Loungers', 'Bar', 'Steam', 'Finance', 'Kitchen', 'Staff', 'Waiter', 'Analytics', 'Stock']
           // If trying to access a page registered in the side navigation, ensure they are allowed
           if (layoutRouteNames.includes(to.name) && !allowedList.includes(to.name)) {
             const firstAllowed = layoutRouteNames.find(name => allowedList.includes(name))

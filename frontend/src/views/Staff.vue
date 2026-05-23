@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="page-content page-stack">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
@@ -51,14 +51,14 @@
       <div class="p-6 border-b border-dark-border bg-white/5">
         <h3 class="text-xl font-bold text-white tracking-tight">Список персонала</h3>
       </div>
-      <div class="overflow-x-auto custom-scrollbar">
+      <div class="table-wrap custom-scrollbar">
         <table class="w-full text-left text-sm text-gray-400">
           <thead class="text-xs text-gray-500 uppercase font-bold bg-dark-surface/50">
             <tr>
               <th scope="col" class="px-6 py-4">Сотрудник</th>
-              <th scope="col" class="px-6 py-4">Роль</th>
-              <th scope="col" class="px-6 py-4">Дата добавления</th>
-              <th scope="col" class="px-6 py-4">Статус</th>
+              <th scope="col" class="px-6 py-4 hidden sm:table-cell">Роль</th>
+              <th scope="col" class="px-6 py-4 hidden sm:table-cell">Дата добавления</th>
+              <th scope="col" class="px-6 py-4 hidden sm:table-cell">Статус</th>
               <th scope="col" class="px-6 py-4 text-right">Действия</th>
             </tr>
           </thead>
@@ -68,13 +68,13 @@
                 <div class="text-white font-bold text-base">{{ user.full_name }}</div>
                 <div class="text-xs text-gray-500 mt-1">{{ user.email }}</div>
               </td>
-              <td class="px-6 py-4">
+              <td class="px-6 py-4 hidden sm:table-cell">
                 <span class="px-3 py-1 bg-white/10 text-white rounded-lg text-xs font-semibold">{{ user.role?.name || 'Нет роли' }}</span>
               </td>
-              <td class="px-6 py-4 text-gray-400 font-medium">
+              <td class="px-6 py-4 text-gray-400 font-medium hidden sm:table-cell">
                 {{ new Date(user.created_at).toLocaleDateString() }}
               </td>
-              <td class="px-6 py-4">
+              <td class="px-6 py-4 hidden sm:table-cell">
                 <span v-if="user.is_active" class="inline-flex items-center px-3 py-1 rounded-xl text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Активен</span>
                 <span v-else class="inline-flex items-center px-3 py-1 rounded-xl text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20">Заблокирован</span>
               </td>
@@ -106,7 +106,7 @@
       <div class="p-6 border-b border-dark-border bg-white/5">
         <h3 class="text-xl font-bold text-white tracking-tight">Роли доступа</h3>
       </div>
-      <div class="overflow-x-auto custom-scrollbar">
+      <div class="table-wrap custom-scrollbar">
         <table class="w-full text-left text-sm text-gray-400">
           <thead class="text-xs text-gray-500 uppercase font-bold bg-dark-surface/50">
             <tr>
@@ -158,7 +158,7 @@
 
     <!-- MODAL: Add User -->
     <div v-if="showUserModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div class="glass-dark border border-dark-border w-full max-w-lg rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative">
+      <div class="glass-dark border border-dark-border w-full max-w-full md:max-w-lg rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative">
         <button @click="showUserModal = false" class="absolute top-5 right-5 text-gray-400 hover:text-white transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
@@ -211,7 +211,7 @@
 
     <!-- MODAL: Add/Edit Role -->
     <div v-if="showRoleModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div class="glass-dark border border-dark-border w-full max-w-md rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative">
+      <div class="glass-dark border border-dark-border w-full max-w-full md:max-w-md rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative flex flex-col max-h-[90vh]">
         <button @click="showRoleModal = false" class="absolute top-5 right-5 text-gray-400 hover:text-white transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
@@ -294,6 +294,8 @@ const availableTabs = [
   { id: 'Finance', name: 'Касса' },
   { id: 'Kitchen', name: 'Кухня' },
   { id: 'Staff', name: 'Персонал' },
+  { id: 'Analytics', name: 'Аналитика' },
+  { id: 'Stock', name: 'Склад' },
   { id: 'Waiter', name: 'Официант' }
 ]
 

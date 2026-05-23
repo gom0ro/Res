@@ -6,3 +6,4 @@ from app.models.order import Order, OrderItem
 from app.models.bar import BarCategory, BarProduct
 from app.models.steam import Room
 from app.models.finance import Transaction
+from app.models.stock import StockReceipt

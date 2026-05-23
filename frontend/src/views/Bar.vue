@@ -1,12 +1,12 @@
 <template>
-  <div class="flex flex-col h-full space-y-4">
+  <div class="page-content flex flex-col min-h-0 flex-1 space-y-3 sm:space-y-4">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="page-toolbar">
       <div>
         <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Касса Бара</h1>
         <p class="text-gray-400 font-medium">POS Терминал & Прием заказов</p>
       </div>
-      <div class="flex flex-wrap gap-3 w-full sm:w-auto">
+      <div class="page-toolbar__actions">
         <!-- Tab Toggle -->
         <div class="bg-dark-surface border border-dark-border p-1 rounded-xl flex w-full sm:w-auto">
           <button 
@@ -37,7 +37,7 @@
     </div>
     
     <!-- POS Terminal Tab -->
-    <div v-if="activeTab === 'pos'" class="flex flex-col lg:flex-row gap-6 flex-1 min-h-0 lg:h-[calc(100vh-160px)]">
+    <div v-if="activeTab === 'pos'" class="flex flex-col lg:flex-row gap-4 sm:gap-6 flex-1 min-h-0">
       <!-- Sub-tabs for Mobile/Tablet POS View -->
       <div class="lg:hidden flex gap-2 mb-2 bg-dark-surface/50 border border-dark-border p-1 rounded-xl shrink-0">
         <button 
@@ -46,7 +46,7 @@
           class="flex-1 py-2.5 text-xs font-bold rounded-lg transition-all"
           :class="posSubTab === 'catalog' ? 'bg-orange-600 text-white shadow' : 'text-gray-400 hover:text-white'"
         >
-          🍕 Меню
+          <MenuIcon class="w-5 h-5 mr-1 inline-block"/> Меню
         </button>
         <button 
           @click="posSubTab = 'cart'"
@@ -57,7 +57,7 @@
             { 'scale-105 bg-orange-600/20 text-orange-400 transition-transform': cartAnimated }
           ]"
         >
-          <span>🛒 Корзина</span>
+          <span><ShoppingCartIcon class="w-5 h-5 inline-block mr-1"/> Корзина</span>
           <span v-if="cart.length > 0" class="px-2 py-0.5 bg-orange-500/20 text-orange-400 rounded-md text-[10px] font-black border border-orange-500/30">
             {{ cart.reduce((acc, item) => acc + item.quantity, 0) }}
           </span>
@@ -65,7 +65,7 @@
       </div>
 
       <!-- Products Catalog -->
-      <div :class="[posSubTab === 'catalog' ? 'flex' : 'hidden lg:flex', 'flex-1 glass-dark rounded-3xl border border-dark-border p-6 flex-col overflow-hidden h-[calc(100vh-280px)] lg:h-full']">
+      <div :class="[posSubTab === 'catalog' ? 'flex' : 'hidden lg:flex', 'flex-1 glass-dark rounded-2xl sm:rounded-3xl border border-dark-border p-4 sm:p-6 flex-col overflow-hidden min-h-[min(58dvh,28rem)] lg:min-h-0 lg:h-full']">
         <!-- Search bar -->
         <div class="relative mb-4">
           <input type="text" v-model="searchQuery" placeholder="Поиск по названию или штрихкоду..." class="w-full pl-12 pr-4 py-3 bg-dark-surface/50 border border-dark-border rounded-xl text-white outline-none focus:ring-2 focus:ring-orange-500 transition-all">
@@ -79,7 +79,7 @@
             class="px-4 py-2 text-xs font-bold rounded-xl border transition-all flex items-center gap-1.5"
             :class="selectedCategoryId === null ? 'bg-orange-600 border-orange-600 text-white' : 'bg-dark-surface/50 border-dark-border text-gray-400 hover:text-white'"
           >
-            <span>🍽️</span>
+            <UtensilsIcon class="w-5 h-5 inline-block"/>
             <span>Все товары</span>
           </button>
           <button 
@@ -89,7 +89,7 @@
             :class="selectedCategoryId === cat.id ? 'bg-orange-600 border-orange-600 text-white' : 'bg-dark-surface/50 border-dark-border text-gray-400 hover:text-white'"
             :style="selectedCategoryId === cat.id ? {} : { borderColor: cat.color ? cat.color + '40' : undefined, color: cat.color || undefined }"
           >
-            <span>{{ cat.icon || '🍽️' }}</span>
+            <span>{{ cat.icon }}</span>
             <span>{{ cat.name }}</span>
           </button>
         </div>
@@ -117,7 +117,7 @@
       </div>
 
       <!-- Current POS Cart -->
-      <div :class="[posSubTab === 'cart' ? 'flex' : 'hidden lg:flex', 'w-full lg:w-96 glass-dark rounded-3xl border border-dark-border flex-col overflow-hidden shrink-0 h-[calc(100vh-280px)] lg:h-full']">
+      <div :class="[posSubTab === 'cart' ? 'flex' : 'hidden lg:flex', 'w-full lg:w-96 glass-dark rounded-2xl sm:rounded-3xl border border-dark-border flex-col overflow-hidden shrink-0 min-h-[min(50dvh,24rem)] lg:min-h-0 lg:h-full']">
         <div class="p-6 border-b border-dark-border bg-white/5">
           <h3 class="text-xl font-bold text-white tracking-tight">Текущий заказ</h3>
         </div>
@@ -167,7 +167,7 @@
     </div>
 
     <!-- Waiter Orders Tab -->
-    <div v-else class="glass-dark border border-dark-border rounded-3xl p-6 flex flex-col flex-1 overflow-hidden h-[calc(100vh-140px)]">
+    <div v-else class="glass-dark border border-dark-border rounded-2xl sm:rounded-3xl p-4 sm:p-6 flex flex-col flex-1 overflow-hidden min-h-[min(55dvh,26rem)] lg:min-h-[20rem]">
       <h3 class="text-xl font-bold text-white tracking-tight mb-4">Активные заказы официантов ({{ waiterOrders.length }})</h3>
       
       <div class="overflow-y-auto custom-scrollbar flex-1 pr-2 space-y-4">
@@ -244,7 +244,7 @@
     <!-- Modal for Adding Product -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-md w-full shadow-2xl relative">
-        <button @click="showAddModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
+        <button @click="showAddModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
         <h3 class="text-2xl font-bold text-white mb-6">Новый товар</h3>
         <form @submit.prevent="createProduct" class="space-y-4">
           <div>
@@ -276,7 +276,7 @@
     <!-- Modal for Managing Categories -->
     <div v-if="showCategoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-md w-full shadow-2xl relative flex flex-col max-h-[90vh]">
-        <button @click="showCategoryModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
+        <button @click="showCategoryModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
         <h3 class="text-2xl font-bold text-white mb-4">Управление категориями</h3>
         
         <!-- List of Categories -->
@@ -361,7 +361,7 @@
               </div>
               <div class="w-20">
                 <label class="block text-[10px] font-semibold text-gray-400 mb-1">Иконка</label>
-                <input v-model="newCategory.icon" type="text" placeholder="🍹" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-xl text-center text-white text-sm outline-none focus:ring-2 focus:ring-orange-500">
+                <input v-model="newCategory.icon" type="text" placeholder="" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-xl text-center text-white text-sm outline-none focus:ring-2 focus:ring-orange-500">
               </div>
             </div>
             <div class="flex gap-2 items-end">
@@ -389,6 +389,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { api } from '../stores/auth'
 import { toast } from 'vue3-toastify'
+import { ShoppingCartIcon, Bars3Icon as MenuIcon, TagIcon as UtensilsIcon, XMarkIcon as XIcon } from '@heroicons/vue/24/solid'
 
 const activeTab = ref('pos')
 const posSubTab = ref('catalog')
@@ -407,7 +408,7 @@ const editForm = ref({
   name: '',
   description: '',
   color: '#4B5563',
-  icon: '🍽️',
+  icon: '',
   position: 0
 })
 
@@ -422,7 +423,7 @@ const newCategory = ref({
   name: '',
   description: '',
   color: '#4B5563',
-  icon: '🍹'
+  icon: ''
 })
 
 const pendingOrdersCount = computed(() => {
@@ -446,7 +447,7 @@ const fetchCategories = async () => {
 const createCategory = async () => {
   try {
     await api.post('/bar/categories', newCategory.value)
-    newCategory.value = { name: '', description: '', color: '#4B5563', icon: '🍹' }
+    newCategory.value = { name: '', description: '', color: '#4B5563', icon: '' }
     toast.success('Категория успешно создана')
     await fetchCategories()
   } catch (err) {

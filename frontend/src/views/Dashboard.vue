@@ -1,162 +1,235 @@
 <template>
-  <div class="space-y-6">
-    <!-- Stats Overview -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-      <div v-for="stat in stats" :key="stat.name" class="glass-dark p-6 rounded-3xl relative overflow-hidden group hover:border-primary-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10 cursor-default hover:-translate-y-1">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br opacity-10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform duration-500 group-hover:scale-150" :class="stat.gradient"></div>
-        <div class="flex items-center justify-between mb-4 relative z-10">
-          <div class="p-3 rounded-2xl bg-white/5 text-gray-300 group-hover:bg-white/10 transition-colors">
-            <component :is="stat.icon" class="w-6 h-6" />
-          </div>
-          <span class="flex items-center text-sm font-bold px-2 py-1 rounded-lg bg-black/20 text-green-400">
-            {{ stat.change }}
-            <svg class="w-4 h-4 ml-1 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-          </span>
+  <div class="page-content page-stack">
+
+    <PageHeader :title="'Обзор'" :subtitle="todayShort">
+      <template #badge>
+        <span class="badge badge-success w-full sm:w-auto justify-center">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-soft"/>
+          Система активна
+        </span>
+      </template>
+    </PageHeader>
+
+    <!-- KPI -->
+    <div class="stats-grid">
+      <template v-if="loading">
+        <div v-for="i in 4" :key="i" class="glass-card rounded-premium-xl p-4 sm:p-6 glass-card--flat">
+          <Skeleton width="2.25rem" height="2.25rem" rounded="xl" class="mb-4" />
+          <Skeleton width="60%" height="1.75rem" class="mb-2" />
+          <Skeleton width="40%" height="0.75rem" />
         </div>
-        <h3 class="text-3xl sm:text-4xl font-black text-white mb-1 tracking-tight relative z-10">{{ stat.value }}</h3>
-        <p class="text-sm font-medium text-gray-400 relative z-10">{{ stat.name }}</p>
-      </div>
+      </template>
+      <GlassCard
+        v-else
+        v-for="(stat, i) in stats"
+        :key="stat.name"
+        tag="div"
+        class="stat-card stat-card-compact group cursor-default !p-4 sm:!p-6"
+        :delay="i * 60"
+        :hoverable="true"
+      >
+        <div
+          class="absolute inset-0 rounded-premium-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          :style="`background: radial-gradient(circle at 50% 0%, ${stat.glow}12, transparent 70%)`"
+        />
+        <div class="relative z-10">
+          <div class="flex items-start justify-between gap-2 mb-3 sm:mb-4">
+            <div
+              class="w-9 h-9 sm:w-10 sm:h-10 rounded-premium-lg flex items-center justify-center shrink-0"
+              :style="`background:${stat.glow}12;border:1px solid ${stat.glow}22`"
+            >
+              <component :is="stat.icon" class="w-4 h-4 sm:w-[1.125rem] sm:h-[1.125rem]" :style="`color:${stat.glow}`"/>
+            </div>
+            <span
+              class="text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-lg shrink-0"
+              style="color: #34d399; background: rgba(16,185,129,0.1)"
+            >
+              {{ stat.change }}
+            </span>
+          </div>
+          <p class="text-xl sm:text-2xl font-bold text-ink tracking-tight leading-none break-words">{{ stat.value }}</p>
+          <p class="text-ink-muted text-[11px] sm:text-xs mt-1.5 sm:mt-2 font-medium leading-snug">{{ stat.name }}</p>
+        </div>
+      </GlassCard>
     </div>
 
-    <!-- Quick Actions & Active Items -->
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-      <div class="xl:col-span-2 glass-dark rounded-3xl p-6 sm:p-8 border border-dark-border shadow-lg shadow-black/20">
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="text-xl font-bold text-white tracking-tight">Активные посетители в бассейне</h3>
-          <router-link to="/pool" class="text-sm font-semibold text-primary-400 hover:text-primary-300 transition-colors px-3 py-1.5 rounded-lg hover:bg-primary-500/10">Все посетители</router-link>
+    <!-- Main grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+      <GlassCard
+        tag="section"
+        class="lg:col-span-2 overflow-hidden !p-0 glass-card--flat"
+        :delay="280"
+        :hoverable="false"
+      >
+        <div class="flex items-center justify-between gap-2 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[var(--border-subtle)]">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse-soft shrink-0" style="box-shadow: 0 0 8px rgba(59,130,246,0.6)"/>
+            <h3 class="text-ink font-semibold text-sm truncate">Активные в бассейне</h3>
+            <span class="badge badge-live shrink-0">{{ visitsLoading ? '…' : activeVisits.length }}</span>
+          </div>
+          <router-link to="/pool" class="text-xs text-ink-muted hover:text-primary-400 font-medium transition-colors shrink-0">
+            Все →
+          </router-link>
         </div>
-        
-        <div class="space-y-3">
-          <div 
-            v-for="v in activeVisits.slice(0, 5)" 
-            :key="v.id" 
+
+        <div class="p-3 sm:p-5 space-y-1">
+          <template v-if="visitsLoading">
+            <div v-for="i in 3" :key="i" class="flex items-center gap-3 p-3">
+              <Skeleton width="2.5rem" height="2.5rem" rounded="xl" />
+              <div class="flex-1 space-y-2">
+                <Skeleton width="50%" height="0.875rem" />
+                <Skeleton width="35%" height="0.625rem" />
+              </div>
+              <Skeleton width="4rem" height="1.25rem" />
+            </div>
+          </template>
+
+          <div
+            v-else
+            v-for="(v, i) in activeVisits.slice(0, 5)"
+            :key="v.id"
+            v-motion
+            :initial="{ opacity: 0, x: -6 }"
+            :enter="{ opacity: 1, x: 0, transition: { delay: 320 + i * 45, duration: 380 } }"
+            class="list-row-responsive flex items-center gap-3 sm:gap-4 p-3 sm:p-3.5 rounded-premium-lg cursor-pointer transition-all duration-300 hover:bg-[var(--surface-hover)] group"
             @click="$router.push('/pool')"
-            class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 group cursor-pointer"
           >
-            <div class="flex items-center gap-4 mb-3 sm:mb-0">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 text-blue-400 flex items-center justify-center font-bold text-lg shadow-inner border border-blue-500/20 group-hover:border-blue-500/40 transition-colors">
-                #{{ v.bracelet_number }}
-              </div>
-              <div>
-                <p class="text-white font-bold text-base">{{ v.client_name || 'Неизвестный гость' }}</p>
-                <p class="text-sm text-gray-400 font-medium mt-0.5">
-                  Тариф: <span class="capitalize">{{ getTariffLabel(v.tariff_type) }}</span> • Вход: {{ formatTime(v.entry_time) }}
-                </p>
-              </div>
+            <div
+              class="w-10 h-10 sm:w-11 sm:h-11 rounded-premium-lg flex items-center justify-center text-blue-400 font-bold text-sm shrink-0"
+              style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.15)"
+            >
+              {{ v.bracelet_number }}
             </div>
-            <div class="flex items-center justify-between sm:justify-end sm:text-right w-full sm:w-auto gap-4">
-              <p class="text-white font-bold text-lg">{{ v.total_amount }} ₸</p>
-              <span class="inline-flex items-center px-3 py-1 rounded-xl text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/20">
-                <span class="w-1.5 h-1.5 rounded-full bg-blue-400 mr-2 animate-pulse"></span>
-                В бассейне
-              </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-ink text-sm font-semibold truncate">{{ v.client_name || 'Гость' }}</p>
+              <p class="text-ink-muted text-xs mt-0.5 truncate">{{ getTariffLabel(v.tariff_type) }} · {{ formatTime(v.entry_time) }}</p>
+            </div>
+            <div class="list-row-responsive__end sm:list-row-responsive__end-none text-right shrink-0 sm:border-0 sm:block sm:w-auto sm:pt-0">
+              <p class="text-ink text-sm font-bold tabular-nums">{{ v.total_amount.toLocaleString() }} ₸</p>
+              <span class="text-[10px] text-blue-400/90 font-semibold">В бассейне</span>
             </div>
           </div>
 
-          <div v-if="activeVisits.length === 0" class="text-center py-12 text-gray-500 font-medium">
-            В данный момент в бассейне нет активных посетителей.
+          <div v-if="!visitsLoading && activeVisits.length === 0" class="flex flex-col items-center justify-center py-12 sm:py-14 text-ink-muted">
+            <UserGroupIcon class="w-10 h-10 mb-3 opacity-30"/>
+            <p class="text-sm font-medium">Нет активных посетителей</p>
           </div>
         </div>
-      </div>
+      </GlassCard>
 
-      <!-- Quick Actions -->
-      <div class="glass-dark rounded-3xl p-6 sm:p-8 border border-dark-border shadow-lg shadow-black/20 flex flex-col">
-        <h3 class="text-xl font-bold text-white mb-6 tracking-tight">Быстрые действия</h3>
-        <div class="grid grid-cols-2 gap-4 flex-1 content-start">
-          <button @click="$router.push('/pool')" class="p-5 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 hover:from-primary-500/20 hover:to-primary-600/10 border border-white/10 hover:border-primary-500/30 transition-all duration-300 group flex flex-col items-center justify-center text-center gap-4 shadow-lg hover:shadow-primary-500/20 hover:-translate-y-1">
-            <div class="p-3.5 bg-white/5 rounded-2xl group-hover:bg-primary-500/20 group-hover:text-primary-400 text-gray-400 transition-colors shadow-inner">
-              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+      <GlassCard tag="section" padding="lg" class="!p-4 sm:!p-5 md:!p-6" :delay="360" :hoverable="false">
+        <h3 class="text-ink font-semibold text-sm mb-4 sm:mb-5">Быстрые действия</h3>
+        <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
+          <button
+            v-for="(action, i) in quickActions"
+            :key="action.label"
+            v-motion
+            :initial="{ opacity: 0, scale: 0.96 }"
+            :enter="{ opacity: 1, scale: 1, transition: { delay: 400 + i * 50, duration: 350 } }"
+            class="flex flex-col items-center gap-2.5 sm:gap-3 p-3.5 sm:p-4 rounded-premium-lg transition-colors duration-300 text-center group min-h-[5.5rem]"
+            :style="`background:${action.color}08;border:1px solid ${action.color}18`"
+            @click="$router.push(action.to)"
+          >
+            <div
+              class="w-10 h-10 sm:w-11 sm:h-11 rounded-premium-lg flex items-center justify-center"
+              :style="`background:${action.color}14`"
+            >
+              <component :is="action.icon" class="w-5 h-5" :style="`color:${action.color}`"/>
             </div>
-            <span class="text-sm font-bold text-gray-300 group-hover:text-white">Новый гость</span>
-          </button>
-          
-          <button @click="$router.push('/bar')" class="p-5 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 hover:from-green-500/20 hover:to-green-600/10 border border-white/10 hover:border-green-500/30 transition-all duration-300 group flex flex-col items-center justify-center text-center gap-4 shadow-lg hover:shadow-green-500/20 hover:-translate-y-1">
-            <div class="p-3.5 bg-white/5 rounded-2xl group-hover:bg-green-500/20 group-hover:text-green-400 text-gray-400 transition-colors shadow-inner">
-              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-            </div>
-            <span class="text-sm font-bold text-gray-300 group-hover:text-white">Новый заказ</span>
-          </button>
-
-          <button @click="$router.push('/loungers')" class="p-5 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 hover:from-purple-500/20 hover:to-purple-600/10 border border-white/10 hover:border-purple-500/30 transition-all duration-300 group flex flex-col items-center justify-center text-center gap-4 shadow-lg hover:shadow-purple-500/20 hover:-translate-y-1">
-            <div class="p-3.5 bg-white/5 rounded-2xl group-hover:bg-purple-500/20 group-hover:text-purple-400 text-gray-400 transition-colors shadow-inner">
-              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            </div>
-            <span class="text-sm font-bold text-gray-300 group-hover:text-white">Бронь топчана</span>
-          </button>
-
-          <button @click="$router.push('/steam')" class="p-5 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 hover:from-yellow-500/20 hover:to-yellow-600/10 border border-white/10 hover:border-yellow-500/30 transition-all duration-300 group flex flex-col items-center justify-center text-center gap-4 shadow-lg hover:shadow-yellow-500/20 hover:-translate-y-1">
-            <!-- Dynamic Fire/Steam room icon -->
-            <div class="p-3.5 bg-white/5 rounded-2xl group-hover:bg-yellow-500/20 group-hover:text-yellow-400 text-gray-400 transition-colors shadow-inner">
-              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            </div>
-            <span class="text-sm font-bold text-gray-300 group-hover:text-white">Бани & VIP</span>
+            <span class="text-[11px] sm:text-xs font-semibold text-ink-muted group-hover:text-ink transition-colors leading-tight">
+              {{ action.label }}
+            </span>
           </button>
         </div>
-      </div>
+      </GlassCard>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { api } from '../stores/auth'
-import { 
-  CurrencyDollarIcon, 
-  UserGroupIcon, 
-  MapIcon, 
-  ShoppingCartIcon 
+import PageHeader from '../components/ui/PageHeader.vue'
+import GlassCard from '../components/ui/GlassCard.vue'
+import Skeleton from '../components/ui/Skeleton.vue'
+import {
+  CurrencyDollarIcon,
+  UserGroupIcon,
+  MapIcon,
+  ShoppingCartIcon,
+  UserPlusIcon,
+  BeakerIcon,
+  FireIcon,
 } from '@heroicons/vue/24/outline'
 
 const stats = ref([
-  { name: 'Выручка за сегодня', value: '45 000 ₸', icon: CurrencyDollarIcon, change: '12%', changeType: 'increase', gradient: 'from-green-500 to-green-600', key: 'daily_revenue' },
-  { name: 'Активно в бассейне', value: '0', icon: UserGroupIcon, change: '5%', changeType: 'increase', gradient: 'from-blue-500 to-blue-600', key: 'active_pool_guests' },
-  { name: 'Занятость топчанов', value: '0%', icon: MapIcon, change: '2%', changeType: 'increase', gradient: 'from-purple-500 to-purple-600', key: 'loungers_occupancy' },
-  { name: 'Активные заказы', value: '0', icon: ShoppingCartIcon, change: '18%', changeType: 'increase', gradient: 'from-yellow-500 to-yellow-600', key: 'active_orders' },
+  { name: 'Выручка сегодня', value: '—', icon: CurrencyDollarIcon, change: '+12%', glow: '#10b981', key: 'daily_revenue' },
+  { name: 'В бассейне', value: '0', icon: UserGroupIcon, change: '+5%', glow: '#3b82f6', key: 'active_pool_guests' },
+  { name: 'Занятость топчанов', value: '0%', icon: MapIcon, change: '+2%', glow: '#8b5cf6', key: 'loungers_occupancy' },
+  { name: 'Активные заказы', value: '0', icon: ShoppingCartIcon, change: '+18%', glow: '#f59e0b', key: 'active_orders' },
 ])
 
 const activeVisits = ref([])
+const loading = ref(true)
+const visitsLoading = ref(true)
 
-onMounted(() => {
-  fetchStats()
-  fetchActivePoolVisits()
+const todayShort = computed(() =>
+  new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', weekday: 'short' })
+)
+
+const quickActions = [
+  { label: 'Новый гость', to: '/pool', icon: UserPlusIcon, color: '#3b82f6' },
+  { label: 'Новый заказ', to: '/bar', icon: BeakerIcon, color: '#10b981' },
+  { label: 'Топчан', to: '/loungers', icon: MapIcon, color: '#8b5cf6' },
+  { label: 'Бани & VIP', to: '/steam', icon: FireIcon, color: '#f59e0b' },
+]
+
+onMounted(async () => {
+  await Promise.all([fetchStats(), fetchActivePoolVisits()])
 })
 
 const fetchStats = async () => {
+  loading.value = true
   try {
     const res = await api.get('/dashboard/stats')
-    // Map response keys directly to update the reactive values
-    stats.value.forEach(stat => {
-      if (res.data[stat.key] !== undefined) {
-        stat.value = res.data[stat.key]
-      }
+    stats.value.forEach((stat) => {
+      if (res.data[stat.key] !== undefined) stat.value = res.data[stat.key]
     })
   } catch (err) {
-    console.error("Error loading dashboard stats", err)
+    console.error(err)
+  } finally {
+    loading.value = false
   }
 }
 
 const fetchActivePoolVisits = async () => {
+  visitsLoading.value = true
   try {
     const res = await api.get('/pool/')
-    // Filter active visits
-    activeVisits.value = res.data.filter(v => v.status === 'active')
+    activeVisits.value = res.data.filter((v) => v.status === 'active')
   } catch (err) {
-    console.error("Error loading active pool visits", err)
+    console.error(err)
+  } finally {
+    visitsLoading.value = false
   }
 }
 
-const formatTime = (isoString) => {
-  if (!isoString) return '-'
-  return new Date(isoString + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+const formatTime = (iso) => {
+  if (!iso) return '-'
+  return new Date(iso + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-const getTariffLabel = (tariff) => {
-  const map = {
-    'hourly': 'Часовой',
-    'daily': 'Безлимит',
-    'child': 'Детский',
-    'vip': 'VIP'
-  }
-  return map[tariff] || tariff
-}
+const getTariffLabel = (t) =>
+  ({ adult: 'Взрослый', child: 'Детский', daily: 'Безлимит', vip: 'VIP', hourly: 'Часовой' }[t] || t)
 </script>
+
+<style scoped>
+@media (min-width: 481px) {
+  .list-row-responsive__end-none {
+    width: auto;
+    display: block;
+    border-top: none;
+    padding-top: 0;
+  }
+}
+</style>

@@ -7,6 +7,7 @@ from app.api.v1.bar import router as bar_router
 from app.api.v1.steam import router as steam_router
 from app.api.v1.dashboard import router as dashboard_router
 from app.api.v1.finance import router as finance_router
+from app.api.v1.stock import router as stock_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router, prefix="/auth", tags=["auth"])
@@ -17,3 +18,4 @@ api_router.include_router(bar_router, prefix="/bar", tags=["bar"])
 api_router.include_router(steam_router, prefix="/steam", tags=["steam"])
 api_router.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
 api_router.include_router(finance_router, prefix="/finance", tags=["finance"])
+api_router.include_router(stock_router, prefix="/stock", tags=["stock"])

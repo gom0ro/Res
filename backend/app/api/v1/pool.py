@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from typing import List
+from typing import List, Optional
 from datetime import datetime, timedelta
 from app.core.database import get_db
 from app.models.pool import PoolVisit, PoolVisitStatus
@@ -28,8 +28,8 @@ async def create_pool_visit(visit_in: PoolVisitCreate, db: AsyncSession = Depend
     now = datetime.utcnow()
     expected_exit = now + timedelta(hours=visit_in.expected_hours) if visit_in.expected_hours else None
 
-    # Calculate base price (mock logic)
-    prices = {"hourly": 2000, "daily": 10000, "child": 1000, "vip": 5000}
+    # Price per hour by tariff
+    prices = {"adult": 2000, "hourly": 2000, "child": 1000, "daily": 10000, "vip": 5000}
     amount = prices.get(visit_in.tariff_type.value, 2000) * (visit_in.expected_hours or 1)
 
     visit = PoolVisit(
@@ -49,7 +49,11 @@ async def create_pool_visit(visit_in: PoolVisitCreate, db: AsyncSession = Depend
     return visit
 
 @router.post("/{visit_id}/checkout")
-async def checkout_pool_visit(visit_id: int, db: AsyncSession = Depends(get_db)):
+async def checkout_pool_visit(
+    visit_id: int,
+    payment_method: Optional[str] = "cash",
+    db: AsyncSession = Depends(get_db)
+):
     result = await db.execute(select(PoolVisit).filter(PoolVisit.id == visit_id))
     visit = result.scalars().first()
     
@@ -59,12 +63,15 @@ async def checkout_pool_visit(visit_id: int, db: AsyncSession = Depends(get_db))
     visit.status = PoolVisitStatus.COMPLETED
     visit.exit_time = datetime.utcnow()
     visit.is_paid = True
+    visit.payment_method = payment_method
+
+    payment_label = "Каспий" if payment_method == "kaspi" else "Нал"
     
     # Register transaction
     from app.models.finance import Transaction
     txn = Transaction(
         category="pool",
-        item_name=f"Бассейн: браслет #{visit.bracelet_number} ({visit.client_name or 'Гость'})",
+        item_name=f"Бассейн: браслет #{visit.bracelet_number} ({visit.client_name or 'Гость'}) [{payment_label}]",
         subtotal=visit.total_amount,
         service_fee=0.0,
         total_amount=visit.total_amount
