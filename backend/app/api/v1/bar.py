@@ -4,8 +4,10 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from typing import List, Optional
 from app.core.database import get_db
+from app.core.dependencies import get_current_active_user
 from app.models.bar import BarCategory, BarProduct
 from app.models.order import Order, OrderItem, OrderStatus
+from app.models.user import User
 from app.schemas.bar import Category, CategoryCreate, Product as ProductSchema, ProductCreate
 from app.schemas.order import Order as OrderSchema, OrderCreate
 
@@ -42,12 +44,12 @@ async def seed_bar(db: AsyncSession = Depends(get_db)):
     return {"msg": "Bar seeded successfully"}
 
 @router.get("/products", response_model=List[ProductSchema])
-async def get_products(db: AsyncSession = Depends(get_db)):
+async def get_products(db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     result = await db.execute(select(BarProduct).filter(BarProduct.is_active == True))
     return result.scalars().all()
 
 @router.post("/products", response_model=ProductSchema)
-async def create_product(product_in: ProductCreate, db: AsyncSession = Depends(get_db)):
+async def create_product(product_in: ProductCreate, db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     category_id = product_in.category_id
     if not category_id:
         # Check if default category exists
@@ -73,12 +75,12 @@ async def create_product(product_in: ProductCreate, db: AsyncSession = Depends(g
     return product
 
 @router.get("/categories", response_model=List[Category])
-async def get_categories(db: AsyncSession = Depends(get_db)):
+async def get_categories(db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     result = await db.execute(select(BarCategory).order_by(BarCategory.position.asc()))
     return result.scalars().all()
 
 @router.post("/categories", response_model=Category)
-async def create_category(category_in: CategoryCreate, db: AsyncSession = Depends(get_db)):
+async def create_category(category_in: CategoryCreate, db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     # Check if category with this name already exists
     exist_res = await db.execute(select(BarCategory).filter(BarCategory.name == category_in.name))
     if exist_res.scalars().first():
@@ -102,7 +104,7 @@ async def create_category(category_in: CategoryCreate, db: AsyncSession = Depend
     return category
 
 @router.put("/categories/reorder")
-async def reorder_categories(category_ids: List[int], db: AsyncSession = Depends(get_db)):
+async def reorder_categories(category_ids: List[int], db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     for index, cat_id in enumerate(category_ids):
         res = await db.execute(select(BarCategory).filter(BarCategory.id == cat_id))
         category = res.scalars().first()
@@ -113,7 +115,7 @@ async def reorder_categories(category_ids: List[int], db: AsyncSession = Depends
     return {"msg": "Порядок категорий успешно обновлен"}
 
 @router.put("/categories/{category_id}", response_model=Category)
-async def update_category(category_id: int, category_in: CategoryCreate, db: AsyncSession = Depends(get_db)):
+async def update_category(category_id: int, category_in: CategoryCreate, db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     res = await db.execute(select(BarCategory).filter(BarCategory.id == category_id))
     category = res.scalars().first()
     if not category:
@@ -141,7 +143,7 @@ async def update_category(category_id: int, category_in: CategoryCreate, db: Asy
     return category
 
 @router.delete("/categories/{category_id}")
-async def delete_category(category_id: int, db: AsyncSession = Depends(get_db)):
+async def delete_category(category_id: int, db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     res = await db.execute(select(BarCategory).filter(BarCategory.id == category_id))
     category = res.scalars().first()
     if not category:
@@ -161,7 +163,7 @@ async def delete_category(category_id: int, db: AsyncSession = Depends(get_db)):
 
 # --- ORDERS ---
 @router.post("/orders", response_model=OrderSchema)
-async def create_bar_order(order_in: OrderCreate, db: AsyncSession = Depends(get_db)):
+async def create_bar_order(order_in: OrderCreate, db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     if not order_in.items:
         raise HTTPException(status_code=400, detail="Корзина пуста")
 
@@ -247,7 +249,7 @@ async def create_bar_order(order_in: OrderCreate, db: AsyncSession = Depends(get
     return result.scalars().first()
 
 @router.get("/orders", response_model=List[OrderSchema])
-async def get_bar_orders(db: AsyncSession = Depends(get_db)):
+async def get_bar_orders(db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     result = await db.execute(
         select(Order)
         .options(
@@ -262,7 +264,8 @@ async def update_order_status(
     order_id: int, 
     status: OrderStatus, 
     is_paid: Optional[bool] = None, 
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _user: User = Depends(get_current_active_user)
 ):
     result = await db.execute(
         select(Order)

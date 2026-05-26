@@ -4,14 +4,16 @@ from sqlalchemy.future import select
 from sqlalchemy import func
 from datetime import datetime, date
 from app.core.database import get_db
+from app.core.dependencies import get_current_active_user
 from app.models.pool import PoolVisit, PoolVisitStatus
 from app.models.lounger import Lounger, LoungerStatus
 from app.models.order import Order, OrderStatus
+from app.models.user import User
 
 router = APIRouter()
 
 @router.get("/stats")
-async def get_dashboard_stats(db: AsyncSession = Depends(get_db)):
+async def get_dashboard_stats(db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     # 1. Active pool guests: fast SQL COUNT
     active_pool_res = await db.execute(
         select(func.count(PoolVisit.id)).filter(PoolVisit.status == PoolVisitStatus.ACTIVE)
@@ -60,7 +62,7 @@ async def get_dashboard_stats(db: AsyncSession = Depends(get_db)):
     bar_revenue = bar_revenue_res.scalar() or 0.0
 
     # Base operational mock revenue for luxury cabins + real aggregates
-    total_revenue = pool_revenue + bar_revenue + 45000.0
+    total_revenue = pool_revenue + bar_revenue
 
     return {
         "daily_revenue": f"{total_revenue:,.0f} ₸".replace(",", " "),

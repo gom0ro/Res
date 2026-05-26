@@ -54,16 +54,26 @@
           :class="{ active: $route.name === item.routeName }"
           @click="sidebarOpen = false"
         >
-          <component
-            :is="item.icon"
-            class="w-4 h-4 mr-3 shrink-0 transition-colors duration-300"
-            :class="$route.name === item.routeName ? 'text-primary-400' : 'text-ink-muted group-hover:text-ink-secondary'"
-          />
+          <div
+            class="w-7 h-7 rounded-lg flex items-center justify-center mr-3 shrink-0 transition-all duration-300"
+            :style="$route.name === item.routeName
+              ? `background: ${item.color}22; border: 1px solid ${item.color}33;`
+              : 'background: var(--surface-muted); border: 1px solid transparent;'"
+          >
+            <component
+              :is="item.icon"
+              class="w-3.5 h-3.5 transition-colors duration-300"
+              :style="$route.name === item.routeName
+                ? `color: ${item.color}`
+                : ''"
+              :class="$route.name !== item.routeName ? 'text-ink-muted group-hover:text-ink-secondary' : ''"
+            />
+          </div>
           <span>{{ item.name }}</span>
           <div
             v-if="$route.name === item.routeName"
-            class="ml-auto w-1.5 h-1.5 rounded-full bg-primary-400"
-            style="box-shadow: 0 0 8px rgba(99, 102, 241, 0.7)"
+            class="ml-auto w-1.5 h-1.5 rounded-full"
+            :style="`background: ${item.color}; box-shadow: 0 0 8px ${item.color}99;`"
           />
         </router-link>
       </nav>
@@ -394,17 +404,17 @@ const closeDropdown = (e) => {
 }
 
 const allNavigation = [
-  { name: 'Дашборд', routeName: 'Dashboard', to: '/', icon: HomeIcon, roles: ['admin'] },
-  { name: 'Бассейн', routeName: 'Pool', to: '/pool', icon: UserGroupIcon, roles: ['admin'] },
-  { name: 'Топчаны', routeName: 'Loungers', to: '/loungers', icon: MapIcon, roles: ['admin'] },
-  { name: 'Бар', routeName: 'Bar', to: '/bar', icon: BeakerIcon, roles: ['admin', 'bartender'] },
-  { name: 'Бани & VIP', routeName: 'Steam', to: '/steam', icon: FireIcon, roles: ['admin'] },
-  { name: 'Касса', routeName: 'Finance', to: '/finance', icon: BanknotesIcon, roles: ['admin', 'bartender'] },
-  { name: 'Кухня', routeName: 'Kitchen', to: '/kitchen', icon: QueueListIcon, roles: ['admin', 'cook'] },
-  { name: 'Персонал', routeName: 'Staff', to: '/staff', icon: UserPlusIcon, roles: ['admin'] },
-  { name: 'Аналитика', routeName: 'Analytics', to: '/analytics', icon: ChartBarIcon, roles: ['admin'] },
-  { name: 'Склад', routeName: 'Stock', to: '/stock', icon: ArchiveBoxIcon, roles: ['admin'] },
-  { name: 'Панель Официанта', routeName: 'Waiter', to: '/waiter', icon: ClipboardDocumentListIcon, roles: ['waiter'] },
+  { name: 'Дашборд', routeName: 'Dashboard', to: '/', icon: HomeIcon, roles: ['admin'], color: '#6366f1', gradient: 'from-indigo-500 to-purple-500' },
+  { name: 'Бассейн', routeName: 'Pool', to: '/pool', icon: UserGroupIcon, roles: ['admin'], color: '#3b82f6', gradient: 'from-blue-500 to-cyan-400' },
+  { name: 'Топчаны', routeName: 'Loungers', to: '/loungers', icon: MapIcon, roles: ['admin'], color: '#8b5cf6', gradient: 'from-violet-500 to-purple-400' },
+  { name: 'Бар', routeName: 'Bar', to: '/bar', icon: BeakerIcon, roles: ['admin', 'bartender'], color: '#f59e0b', gradient: 'from-amber-500 to-orange-400' },
+  { name: 'Бани & VIP', routeName: 'Steam', to: '/steam', icon: FireIcon, roles: ['admin'], color: '#ef4444', gradient: 'from-red-500 to-orange-500' },
+  { name: 'Касса', routeName: 'Finance', to: '/finance', icon: BanknotesIcon, roles: ['admin', 'bartender'], color: '#10b981', gradient: 'from-emerald-500 to-teal-400' },
+  { name: 'Кухня', routeName: 'Kitchen', to: '/kitchen', icon: QueueListIcon, roles: ['admin', 'cook'], color: '#f97316', gradient: 'from-orange-500 to-amber-400' },
+  { name: 'Персонал', routeName: 'Staff', to: '/staff', icon: UserPlusIcon, roles: ['admin'], color: '#ec4899', gradient: 'from-pink-500 to-rose-400' },
+  { name: 'Аналитика', routeName: 'Analytics', to: '/analytics', icon: ChartBarIcon, roles: ['admin'], color: '#06b6d4', gradient: 'from-cyan-500 to-blue-400' },
+  { name: 'Склад', routeName: 'Stock', to: '/stock', icon: ArchiveBoxIcon, roles: ['admin'], color: '#14b8a6', gradient: 'from-teal-500 to-emerald-400' },
+  { name: 'Панель Официанта', routeName: 'Waiter', to: '/waiter', icon: ClipboardDocumentListIcon, roles: ['waiter'], color: '#a855f7', gradient: 'from-purple-500 to-indigo-400' },
 ]
 
 const navigation = computed(() => {
