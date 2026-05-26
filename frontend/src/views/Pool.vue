@@ -2,13 +2,13 @@
   <div class="page-content page-stack">
     <div class="page-toolbar">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Управление Бассейном</h1>
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">🏊 Управление Бассейном</h1>
         <p class="text-gray-400 font-medium">Контроль посетителей, тарифов и история</p>
       </div>
       <div class="page-toolbar__actions">
       <button @click="showModal = true" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white rounded-xl font-bold text-sm shadow-lg shadow-primary-500/20 transition-all duration-300 flex items-center justify-center gap-2">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-        Новый посетитель
+        🏊 Новый посетитель
       </button>
       </div>
     </div>
@@ -16,33 +16,58 @@
     <!-- Stats Grid -->
     <div class="stats-grid">
       <div class="glass-dark border border-dark-border rounded-3xl p-6 flex flex-col justify-between">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">В бассейне сейчас</span>
-        <h2 class="text-3xl font-black text-white mt-2">{{ activeCount }} / {{ poolCapacity }} чел.</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">В бассейне сейчас</span>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.2)">
+            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black text-white mt-1">{{ activeCount }} / {{ poolCapacity }} чел.</h2>
         <div class="w-full bg-dark-bg h-2 rounded-full overflow-hidden mt-3">
-          <div class="h-full bg-primary-500 rounded-full transition-all" :style="{ width: `${Math.min((activeCount / poolCapacity) * 100, 100)}%` }"></div>
+          <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all" :style="{ width: `${Math.min((activeCount / poolCapacity) * 100, 100)}%` }"></div>
         </div>
       </div>
       <div class="glass-dark border border-dark-border rounded-3xl p-6 flex flex-col justify-between">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Всего за сегодня</span>
-        <h2 class="text-3xl font-black text-emerald-400 mt-2">{{ totalToday }} чел.</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Всего за сегодня</span>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2)">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black text-emerald-400 mt-1">{{ totalToday }} чел.</h2>
         <span class="text-xs text-gray-500 font-bold mt-2">Количество посещений</span>
       </div>
       <div class="glass-dark border border-dark-border rounded-3xl p-6 flex flex-col justify-between">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Свободно мест</span>
-        <h2 class="text-3xl font-black text-green-400 mt-2">{{ availableSlots }} чел.</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Свободно мест</span>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.2)">
+            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black text-green-400 mt-1">{{ availableSlots }} чел.</h2>
         <span class="text-xs text-gray-500 font-bold mt-2">Доступно шкафчиков</span>
       </div>
       <div class="glass-dark border border-dark-border rounded-3xl p-6 flex flex-col justify-between">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Выручка за сегодня</span>
-        <h2 class="text-3xl font-black text-orange-400 mt-2">{{ totalRevenueToday.toLocaleString() }} ₸</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Выручка за сегодня</span>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.2)">
+            <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black text-orange-400 mt-1">{{ totalRevenueToday.toLocaleString() }} ₸</h2>
         <span class="text-xs text-gray-500 font-bold mt-2">С закрытых браслетов</span>
       </div>
     </div>
 
     <!-- Tariff Cards -->
     <div class="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-      <div v-for="t in tariffs" :key="t.key" class="glass-dark border border-dark-border rounded-2xl p-4 flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase tracking-widest" :class="t.color">{{ t.label }}</span>
+      <div v-for="t in tariffs" :key="t.key" class="glass-dark border border-dark-border rounded-2xl p-4 flex flex-col gap-1 group hover:border-opacity-40 transition-all duration-300" :style="`border-color: ${t.hex}30`">
+        <div class="flex items-center gap-2 mb-1">
+          <div class="w-6 h-6 rounded-lg flex items-center justify-center" :style="`background: ${t.hex}18`">
+            <span class="text-xs">{{ t.emoji }}</span>
+          </div>
+          <span class="text-xs font-bold uppercase tracking-widest" :class="t.color">{{ t.label }}</span>
+        </div>
         <span class="text-2xl font-black text-white">{{ t.price.toLocaleString() }} ₸</span>
         <span class="text-xs text-gray-500">фиксированная цена</span>
       </div>
@@ -194,10 +219,10 @@ const checkoutVisit = ref(null)
 const selectedPayment = ref('cash')
 
 const tariffs = [
-  { key: 'adult',  label: 'Взрослый', price: 2000,  color: 'text-blue-400' },
-  { key: 'child',  label: 'Детский',  price: 1000,  color: 'text-green-400' },
-  { key: 'daily',  label: 'Безлимит', price: 10000, color: 'text-purple-400' },
-  { key: 'vip',    label: 'VIP',      price: 5000,  color: 'text-yellow-400' },
+  { key: 'adult',  label: 'Взрослый', price: 2000,  color: 'text-blue-400',   hex: '#3b82f6', emoji: '🏊' },
+  { key: 'child',  label: 'Детский',  price: 1000,  color: 'text-green-400',  hex: '#22c55e', emoji: '👶' },
+  { key: 'daily',  label: 'Безлимит', price: 10000, color: 'text-purple-400', hex: '#a855f7', emoji: '♾️' },
+  { key: 'vip',    label: 'VIP',      price: 5000,  color: 'text-yellow-400', hex: '#eab308', emoji: '👑' },
 ]
 
 const form = ref({

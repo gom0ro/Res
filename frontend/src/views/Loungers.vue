@@ -2,7 +2,7 @@
   <div class="page-content page-stack">
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Карта Топчанов</h1>
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">🛋️ Карта Топчанов</h1>
         <p class="text-gray-400 font-medium">Интерактивная карта и управление</p>
       </div>
       <button

@@ -1,7 +1,7 @@
 <template>
   <div class="page-content page-stack">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Аналитика</h1>
+      <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">📊 Аналитика</h1>
       <p class="text-gray-400 font-medium">Сводная статистика по всем направлениям</p>
     </div>
 
@@ -18,23 +18,43 @@
     <!-- KPI cards -->
     <div class="stats-grid">
       <div class="glass-dark border border-dark-border rounded-3xl p-5">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Выручка</span>
-        <h2 class="text-2xl font-black text-white mt-2">{{ stats.total.toLocaleString() }} ₸</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Выручка</span>
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2)">
+            <span class="text-xs">💰</span>
+          </div>
+        </div>
+        <h2 class="text-2xl font-black text-white mt-1">{{ stats.total.toLocaleString() }} ₸</h2>
         <span class="text-xs text-emerald-400 font-bold">Брутто</span>
       </div>
       <div class="glass-dark border border-dark-border rounded-3xl p-5">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Транзакций</span>
-        <h2 class="text-2xl font-black text-white mt-2">{{ stats.count }}</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Транзакций</span>
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.2)">
+            <span class="text-xs">🧾</span>
+          </div>
+        </div>
+        <h2 class="text-2xl font-black text-white mt-1">{{ stats.count }}</h2>
         <span class="text-xs text-gray-500 font-bold">Закрытых чеков</span>
       </div>
       <div class="glass-dark border border-dark-border rounded-3xl p-5">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Ср. чек</span>
-        <h2 class="text-2xl font-black text-white mt-2">{{ avgCheck.toLocaleString() }} ₸</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Ср. чек</span>
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.2)">
+            <span class="text-xs">📊</span>
+          </div>
+        </div>
+        <h2 class="text-2xl font-black text-white mt-1">{{ avgCheck.toLocaleString() }} ₸</h2>
         <span class="text-xs text-gray-500 font-bold">На транзакцию</span>
       </div>
       <div class="glass-dark border border-dark-border rounded-3xl p-5">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Сервисный сбор</span>
-        <h2 class="text-2xl font-black text-orange-400 mt-2">{{ stats.service_fee.toLocaleString() }} ₸</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Сервисный сбор</span>
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.2)">
+            <span class="text-xs">⭐</span>
+          </div>
+        </div>
+        <h2 class="text-2xl font-black text-orange-400 mt-1">{{ stats.service_fee.toLocaleString() }} ₸</h2>
         <span class="text-xs text-gray-500 font-bold">10% с заказов бара</span>
       </div>
     </div>

@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Склад</h1>
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">📦 Склад</h1>
         <p class="text-gray-400 font-medium">Приход товаров, себестоимость и остатки</p>
       </div>
       <button @click="showModal = true" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5">
@@ -15,18 +15,33 @@
     <!-- Stock summary cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="glass-dark border border-dark-border rounded-3xl p-6">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Всего приходов</span>
-        <h2 class="text-3xl font-black text-white mt-2">{{ receipts.length }}</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Всего приходов</span>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.2)">
+            <span class="text-sm">📥</span>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black text-white mt-1">{{ receipts.length }}</h2>
         <span class="text-xs text-gray-500 font-bold mt-1 block">Записей в журнале</span>
       </div>
       <div class="glass-dark border border-dark-border rounded-3xl p-6">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Сумма закупок</span>
-        <h2 class="text-3xl font-black text-orange-400 mt-2">{{ totalCost.toLocaleString() }} ₸</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Сумма закупок</span>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.2)">
+            <span class="text-sm">💳</span>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black text-orange-400 mt-1">{{ totalCost.toLocaleString() }} ₸</h2>
         <span class="text-xs text-gray-500 font-bold mt-1 block">По себестоимости</span>
       </div>
       <div class="glass-dark border border-dark-border rounded-3xl p-6">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Потенц. выручка</span>
-        <h2 class="text-3xl font-black text-emerald-400 mt-2">{{ totalSell.toLocaleString() }} ₸</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Потенц. выручка</span>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2)">
+            <span class="text-sm">📈</span>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black text-emerald-400 mt-1">{{ totalSell.toLocaleString() }} ₸</h2>
         <span class="text-xs text-gray-500 font-bold mt-1 block">По ценам продажи</span>
       </div>
     </div>

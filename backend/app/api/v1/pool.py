@@ -7,16 +7,18 @@ from app.core.database import get_db
 from app.models.pool import PoolVisit, PoolVisitStatus
 from app.schemas.pool import PoolVisit as PoolVisitSchema, PoolVisitCreate
 from app.core.dependencies import get_current_active_user
+from app.models.user import User
+from app.models.finance import Transaction
 
 router = APIRouter()
 
 @router.get("/", response_model=List[PoolVisitSchema])
-async def get_pool_visits(db: AsyncSession = Depends(get_db)):
+async def get_pool_visits(db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     result = await db.execute(select(PoolVisit).order_by(PoolVisit.entry_time.desc()))
     return result.scalars().all()
 
 @router.post("/", response_model=PoolVisitSchema)
-async def create_pool_visit(visit_in: PoolVisitCreate, db: AsyncSession = Depends(get_db)):
+async def create_pool_visit(visit_in: PoolVisitCreate, db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     # Check if bracelet is already active
     result = await db.execute(select(PoolVisit).filter(
         PoolVisit.bracelet_number == visit_in.bracelet_number,
@@ -52,7 +54,8 @@ async def create_pool_visit(visit_in: PoolVisitCreate, db: AsyncSession = Depend
 async def checkout_pool_visit(
     visit_id: int,
     payment_method: Optional[str] = "cash",
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _user: User = Depends(get_current_active_user)
 ):
     result = await db.execute(select(PoolVisit).filter(PoolVisit.id == visit_id))
     visit = result.scalars().first()
@@ -68,7 +71,6 @@ async def checkout_pool_visit(
     payment_label = "Каспий" if payment_method == "kaspi" else "Нал"
     
     # Register transaction
-    from app.models.finance import Transaction
     txn = Transaction(
         category="pool",
         item_name=f"Бассейн: браслет #{visit.bracelet_number} ({visit.client_name or 'Гость'}) [{payment_label}]",

@@ -4,14 +4,16 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from typing import List
 from app.core.database import get_db
+from app.core.dependencies import get_current_active_user
 from app.models.stock import StockReceipt
 from app.models.bar import BarProduct
+from app.models.user import User
 from app.schemas.stock import StockReceiptCreate, StockReceiptOut
 
 router = APIRouter()
 
 @router.get("/", response_model=List[StockReceiptOut])
-async def get_receipts(db: AsyncSession = Depends(get_db)):
+async def get_receipts(db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     result = await db.execute(
         select(StockReceipt)
         .options(selectinload(StockReceipt.product))
@@ -33,7 +35,7 @@ async def get_receipts(db: AsyncSession = Depends(get_db)):
     return out
 
 @router.post("/", response_model=StockReceiptOut)
-async def create_receipt(receipt_in: StockReceiptCreate, db: AsyncSession = Depends(get_db)):
+async def create_receipt(receipt_in: StockReceiptCreate, db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     # Check product exists
     prod_res = await db.execute(select(BarProduct).filter(BarProduct.id == receipt_in.product_id))
     product = prod_res.scalars().first()
@@ -68,7 +70,7 @@ async def create_receipt(receipt_in: StockReceiptCreate, db: AsyncSession = Depe
     )
 
 @router.get("/products", response_model=List[dict])
-async def get_products_for_stock(db: AsyncSession = Depends(get_db)):
+async def get_products_for_stock(db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_active_user)):
     result = await db.execute(select(BarProduct).filter(BarProduct.is_active == True))
     products = result.scalars().all()
     return [{"id": p.id, "name": p.name, "price": p.price, "stock_quantity": p.stock_quantity} for p in products]

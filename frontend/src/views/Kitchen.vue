@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Монитор Кухни (KDS)</h1>
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">👨‍🍳 Монитор Кухни (KDS)</h1>
         <p class="text-gray-400 font-medium">Экран приготовления заказов в реальном времени</p>
       </div>
       <div class="flex items-center gap-3">

@@ -5,7 +5,9 @@ from sqlalchemy import func
 from typing import List, Optional
 from datetime import datetime, date, time
 from app.core.database import get_db
+from app.core.dependencies import get_current_active_user
 from app.models.finance import Transaction
+from app.models.user import User
 from app.schemas.finance import Transaction as TransactionSchema
 
 router = APIRouter()
@@ -16,7 +18,8 @@ async def get_transactions(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
     cashier_id: Optional[int] = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _user: User = Depends(get_current_active_user)
 ):
     query = select(Transaction)
     
@@ -39,7 +42,8 @@ async def get_transactions(
 async def get_finance_stats(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _user: User = Depends(get_current_active_user)
 ):
     # Base filters
     filters = []

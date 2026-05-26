@@ -2,7 +2,7 @@
   <div class="page-content page-stack flex flex-col min-h-0 flex-1">
     <!-- Header -->
     <div>
-      <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Финансы & Касса</h1>
+      <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">💰 Финансы & Касса</h1>
       <p class="text-gray-400 font-medium">Анализ доходов, чаевых и закрытых чеков комплекса в реальном времени</p>
     </div>
 
@@ -38,23 +38,43 @@
     <!-- Stats Grid -->
     <div class="stats-grid">
       <div class="glass-dark border border-dark-border rounded-3xl p-6 flex flex-col justify-between">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Общая выручка</span>
-        <h2 class="text-3xl font-black text-white mt-2">{{ stats.total }} ₸</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Общая выручка</span>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2)">
+            <span class="text-sm">💵</span>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black text-white mt-1">{{ stats.total }} ₸</h2>
         <span class="text-xs text-emerald-400 font-bold mt-2">Касса (брутто)</span>
       </div>
       <div class="glass-dark border border-dark-border rounded-3xl p-6 flex flex-col justify-between">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Чистая выручка</span>
-        <h2 class="text-3xl font-black text-emerald-400 mt-2">{{ stats.subtotal }} ₸</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Чистая выручка</span>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.2)">
+            <span class="text-sm">✨</span>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black text-emerald-400 mt-1">{{ stats.subtotal }} ₸</h2>
         <span class="text-xs text-gray-500 font-bold mt-2">За вычетом чаевых</span>
       </div>
       <div class="glass-dark border border-dark-border rounded-3xl p-6 flex flex-col justify-between">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Чаевые (10% обслуживание)</span>
-        <h2 class="text-3xl font-black text-orange-400 mt-2">{{ stats.service_fee }} ₸</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Чаевые (10%)</span>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.2)">
+            <span class="text-sm">🌟</span>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black text-orange-400 mt-1">{{ stats.service_fee }} ₸</h2>
         <span class="text-xs text-gray-500 font-bold mt-2">С заказов бара</span>
       </div>
       <div class="glass-dark border border-dark-border rounded-3xl p-6 flex flex-col justify-between">
-        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Количество чеков</span>
-        <h2 class="text-3xl font-black text-white mt-2">{{ stats.count }}</h2>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Количество чеков</span>
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.2)">
+            <span class="text-sm">🧾</span>
+          </div>
+        </div>
+        <h2 class="text-3xl font-black text-white mt-1">{{ stats.count }}</h2>
         <span class="text-xs text-gray-500 font-bold mt-2">Всего транзакций</span>
       </div>
     </div>

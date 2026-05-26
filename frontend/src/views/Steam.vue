@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Бани & VIP Кабины</h1>
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">🔥 Бани & VIP Кабины</h1>
         <p class="text-gray-400 font-medium">Интерактивная карта и управление арендой</p>
       </div>
       <button

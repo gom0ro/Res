@@ -71,7 +71,10 @@
           </button>
         </form>
 
-        <p class="text-center text-ink-muted text-[11px] mt-7 font-medium">Resort Management · v1.0</p>
+        <div class="flex items-center justify-center gap-2 mt-7">
+          <span class="text-[10px] text-ink-muted font-medium">Resort Management</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded-md font-bold text-emerald-400" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.15)">v1.0</span>
+        </div>
       </div>
     </div>
   </div>
@@ -88,8 +91,8 @@ import ThemeToggle from '../components/ui/ThemeToggle.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const email = ref('admin@resort.com')
-const password = ref('Admin123!')
+const email = ref('')
+const password = ref('')
 const loading = ref(false)
 
 const handleLogin = async () => {

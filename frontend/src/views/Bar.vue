@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="page-toolbar">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Касса Бара</h1>
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">🍹 Касса Бара</h1>
         <p class="text-gray-400 font-medium">POS Терминал & Прием заказов</p>
       </div>
       <div class="page-toolbar__actions">
