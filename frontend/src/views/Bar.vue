@@ -89,7 +89,7 @@
             :class="selectedCategoryId === cat.id ? 'bg-orange-600 border-orange-600 text-white' : 'bg-dark-surface/50 border-dark-border text-gray-400 hover:text-white'"
             :style="selectedCategoryId === cat.id ? {} : { borderColor: cat.color ? cat.color + '40' : undefined, color: cat.color || undefined }"
           >
-            <span>{{ cat.icon }}</span>
+            <UtensilsIcon class="w-4 h-4" :style="selectedCategoryId === cat.id ? {} : { color: cat.color || undefined }"/>
             <span>{{ cat.name }}</span>
           </button>
         </div>
@@ -286,7 +286,7 @@
             <div v-if="editingCategoryId !== cat.id" class="flex-1 flex justify-between items-center">
               <div>
                 <p class="text-white font-bold text-sm flex items-center gap-2">
-                  <span class="text-lg" :style="{ color: cat.color || undefined }">{{ cat.icon || '🍽️' }}</span>
+                  <UtensilsIcon class="w-4 h-4" :style="{ color: cat.color || undefined }"/>
                   <span>{{ cat.name }}</span>
                 </p>
                 <p v-if="cat.description" class="text-xs text-gray-400">{{ cat.description }}</p>

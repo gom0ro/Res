@@ -114,8 +114,9 @@
           <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
           <!-- Type badge -->
-          <span class="text-[10px] font-bold uppercase tracking-widest opacity-60 z-10 mb-1">
-            {{ room.room_type === 'steam_room' ? '🧖 Баня' : '👑 VIP' }}
+          <span class="text-[10px] font-bold uppercase tracking-widest opacity-60 z-10 mb-1 flex items-center gap-1">
+            <component :is="room.room_type === 'steam_room' ? FireIcon : SparklesIcon" class="w-3 h-3" :class="room.room_type === 'steam_room' ? 'text-orange-400' : 'text-yellow-400'"/>
+            <span>{{ room.room_type === 'steam_room' ? 'Баня' : 'VIP' }}</span>
           </span>
 
           <!-- Name -->
@@ -149,7 +150,7 @@
     <!-- Room Action Modal (click on room) -->
     <div v-if="selectedRoom" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-sm w-full shadow-2xl relative">
-        <button @click="selectedRoom = null" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
+        <button @click="selectedRoom = null" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
 
         <div class="mb-1 text-xs font-bold text-gray-500 uppercase tracking-widest">
           {{ selectedRoom.room_type === 'steam_room' ? 'Баня / Сауна' : 'VIP Кабина' }}
@@ -202,7 +203,7 @@
     <!-- Checkout / Payment Modal -->
     <div v-if="checkoutRoom" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div class="glass-dark border border-dark-border rounded-3xl p-8 max-w-sm w-full shadow-2xl relative text-white">
-        <button @click="checkoutRoom = null" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
+        <button @click="checkoutRoom = null" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
 
         <h3 class="text-2xl font-black mb-1">Оплата аренды</h3>
         <p class="text-gray-400 text-sm mb-5">{{ checkoutRoom.name }}</p>
@@ -289,6 +290,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { api } from '../stores/auth'
 import { toast } from 'vue3-toastify'
+import { XMarkIcon as XIcon, FireIcon, SparklesIcon } from '@heroicons/vue/24/solid'
 
 const rooms = ref([])
 const showSettings = ref(false)

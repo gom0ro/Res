@@ -46,7 +46,10 @@
         <div class="space-y-4">
           <div v-for="(val, cat) in stats.breakdown" :key="cat">
             <div class="flex justify-between text-sm mb-1.5">
-              <span class="text-gray-300 font-bold">{{ getCatName(cat) }}</span>
+              <span class="text-gray-300 font-bold flex items-center gap-2">
+                <component :is="getCategoryIcon(cat)" class="w-4 h-4" :class="getCategoryIconClass(cat)"/>
+                <span>{{ getCatName(cat) }}</span>
+              </span>
               <span class="text-white font-black">{{ val.amount.toLocaleString() }} ₸</span>
             </div>
             <div class="w-full bg-dark-bg h-3 rounded-full overflow-hidden">
@@ -107,6 +110,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { api } from '../stores/auth'
+import { BeakerIcon, UserGroupIcon, FireIcon, SparklesIcon } from '@heroicons/vue/24/solid'
 
 const selectedPeriod = ref('today')
 const periods = [
@@ -182,7 +186,11 @@ const getPercent = (amount) => {
   return Math.round((amount / stats.value.total) * 100)
 }
 
-const getCatName = (cat) => ({ pool: 'Бассейн 🏊', bar: 'Бар 🍹', room: 'Бани & VIP 🧖' }[cat] || cat)
+const getCatName = (cat) => ({ pool: 'Бассейн', bar: 'Бар', room: 'Бани & VIP' }[cat] || cat)
+
+const getCategoryIcon = (cat) => ({ pool: UserGroupIcon, bar: BeakerIcon, room: FireIcon }[cat] || SparklesIcon)
+const getCategoryIconClass = (cat) => ({ pool: 'text-blue-400', bar: 'text-emerald-400', room: 'text-purple-400' }[cat] || 'text-gray-400')
+
 const getCatColor = (cat) => ({ pool: 'bg-blue-500', bar: 'bg-emerald-500', room: 'bg-purple-500' }[cat] || 'bg-gray-500')
 const getTariffLabel = (t) => ({ adult: 'Взрослый', child: 'Детский', daily: 'Безлимит', vip: 'VIP', hourly: 'Часовой' }[t] || t)
 

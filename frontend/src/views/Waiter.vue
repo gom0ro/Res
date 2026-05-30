@@ -15,20 +15,21 @@
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-2 bg-dark-surface/50 p-1.5 rounded-2xl border border-dark-border/50 w-fit">
+    <div class="flex flex-col sm:flex-row gap-2 bg-dark-surface/50 p-1.5 rounded-2xl border border-dark-border/50 w-full sm:w-fit">
       <button
         v-for="tab in tabs"
         :key="tab.key"
         @click="activeTab = tab.key"
-        class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 relative"
+        class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 relative flex items-center justify-center gap-2 flex-1 w-full sm:w-auto"
         :class="activeTab === tab.key
           ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-500/25'
           : 'text-gray-400 hover:text-white hover:bg-white/5'"
       >
-        {{ tab.label }}
+        <component :is="getTabIcon(tab.key)" class="w-4 h-4"/>
+        <span>{{ tab.label }}</span>
         <span
           v-if="tab.key === 'orders' && myActiveOrders.length > 0"
-          class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full text-[10px] font-black text-white flex items-center justify-center"
+          class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border border-dark-surface text-[10px] font-black text-white flex items-center justify-center"
         >{{ myActiveOrders.length }}</span>
       </button>
     </div>
@@ -252,15 +253,24 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore, api } from '../stores/auth'
 import { toast } from 'vue3-toastify'
+import { PlusIcon, QueueListIcon, MapIcon } from '@heroicons/vue/24/solid'
 
 const authStore = useAuthStore()
 
 const activeTab = ref('new-order')
 const tabs = [
-  { key: 'new-order', label: '🍽 Новый заказ' },
-  { key: 'orders', label: '📋 Мои заказы' },
-  { key: 'loungers', label: '🗺 Топчаны' }
+  { key: 'new-order', label: 'Новый заказ' },
+  { key: 'orders', label: 'Мои заказы' },
+  { key: 'loungers', label: 'Топчаны' }
 ]
+
+const getTabIcon = (key) => {
+  return {
+    'new-order': PlusIcon,
+    'orders': QueueListIcon,
+    'loungers': MapIcon
+  }[key]
+}
 
 const statusLabels = {
   'new': 'Новый',

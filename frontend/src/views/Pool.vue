@@ -97,7 +97,7 @@
     <!-- Add Visitor Modal -->
     <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-md w-full shadow-2xl relative">
-        <button @click="showModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
+        <button @click="showModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
         <h3 class="text-2xl font-bold text-white mb-6">Новый посетитель</h3>
         <form @submit.prevent="createVisit" class="space-y-4">
           <div>
@@ -144,7 +144,7 @@
     <!-- Checkout / Payment Modal -->
     <div v-if="checkoutVisit" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-sm w-full shadow-2xl relative">
-        <button @click="checkoutVisit = null" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
+        <button @click="checkoutVisit = null" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
         <h3 class="text-2xl font-bold text-white mb-1">Оплата</h3>
         <p class="text-gray-400 text-sm mb-1">Браслет #{{ checkoutVisit.bracelet_number }}</p>
         <p class="text-gray-400 text-sm mb-5">{{ checkoutVisit.client_name || 'Гость' }} · {{ getTariffLabel(checkoutVisit.tariff_type) }} · {{ getElapsed(checkoutVisit.entry_time) }}</p>
@@ -186,6 +186,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { api } from '../stores/auth'
 import { toast } from 'vue3-toastify'
+import { XMarkIcon as XIcon } from '@heroicons/vue/24/solid'
 
 const visits = ref([])
 const showModal = ref(false)

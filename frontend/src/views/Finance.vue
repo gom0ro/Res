@@ -20,9 +20,9 @@
         <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Категория услуг</label>
         <select v-model="selectedCategory" class="w-full px-4 py-2.5 bg-dark-surface/50 border border-dark-border rounded-xl text-white outline-none focus:ring-2 focus:ring-orange-500">
           <option value="">Все категории</option>
-          <option value="pool">Бассейн 🏊</option>
-          <option value="bar">Бар 🍹</option>
-          <option value="room">Бани & VIP 🧖‍♂️</option>
+          <option value="pool">Бассейн</option>
+          <option value="bar">Бар</option>
+          <option value="room">Бани & VIP</option>
         </select>
       </div>
       <div class="flex gap-2 w-full md:w-auto">
@@ -67,7 +67,10 @@
         <div class="space-y-4">
           <div v-for="(val, cat) in stats.breakdown" :key="cat" class="space-y-2">
             <div class="flex justify-between text-sm">
-              <span class="text-gray-300 font-bold capitalize">{{ getCategoryName(cat) }}</span>
+              <span class="text-gray-300 font-bold capitalize flex items-center gap-2">
+                <component :is="getCategoryIcon(cat)" class="w-4 h-4" :class="getCategoryIconClass(cat)"/>
+                <span>{{ getCategoryName(cat) }}</span>
+              </span>
               <span class="text-white font-black">{{ val.amount }} ₸</span>
             </div>
             <div class="w-full bg-dark-bg h-2.5 rounded-full overflow-hidden">
@@ -88,17 +91,17 @@
       <div class="glass-dark border border-dark-border rounded-3xl p-6 lg:col-span-2 flex flex-col h-[520px]">
         <!-- Tab switches -->
         <div class="flex justify-between items-center border-b border-dark-border/50 pb-4 mb-4 shrink-0">
-          <div class="bg-dark-surface border border-dark-border p-1 rounded-xl flex gap-1">
+          <div class="bg-dark-surface border border-dark-border p-1 rounded-xl flex w-full sm:w-auto gap-1">
             <button 
               @click="activeSubTab = 'history'"
-              class="px-4 py-2 text-xs font-bold rounded-lg transition-colors"
+              class="flex-1 sm:flex-initial px-4 py-2 text-xs font-bold rounded-lg transition-colors text-center"
               :class="activeSubTab === 'history' ? 'bg-orange-600 text-white shadow' : 'text-gray-400 hover:text-white'"
             >
               История транзакций
             </button>
             <button 
               @click="activeSubTab = 'unpaid'"
-              class="px-4 py-2 text-xs font-bold rounded-lg transition-colors relative"
+              class="flex-1 sm:flex-initial px-4 py-2 text-xs font-bold rounded-lg transition-colors relative text-center"
               :class="activeSubTab === 'unpaid' ? 'bg-orange-600 text-white shadow' : 'text-gray-400 hover:text-white'"
             >
               Ожидают оплаты
@@ -124,8 +127,9 @@
               <tr v-for="t in transactions" :key="t.id" class="text-white hover:bg-white/5 transition-colors">
                 <td class="py-3.5 font-mono text-xs text-gray-400">{{ formatTime(t.created_at) }}</td>
                 <td class="py-3.5">
-                  <span class="px-2 py-0.5 rounded-lg text-xs font-bold uppercase tracking-wider" :class="getCategoryBadgeClass(t.category)">
-                    {{ getCategoryName(t.category) }}
+                  <span class="px-2 py-0.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 w-fit" :class="getCategoryBadgeClass(t.category)">
+                    <component :is="getCategoryIcon(t.category)" class="w-3.5 h-3.5"/>
+                    <span>{{ getCategoryName(t.category) }}</span>
                   </span>
                 </td>
                 <td class="py-3.5 font-bold">{{ t.item_name }}</td>
@@ -192,6 +196,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { api } from '../stores/auth'
 import { toast } from 'vue3-toastify'
+import { BeakerIcon, UserGroupIcon, FireIcon, SparklesIcon } from '@heroicons/vue/24/solid'
 
 const startDate = ref('')
 const endDate = ref('')
@@ -210,11 +215,29 @@ const stats = ref({
 
 const getCategoryName = (cat) => {
   const map = {
-    pool: 'Бассейн 🏊',
-    bar: 'Бар 🍹',
-    room: 'Бани & VIP 🧖‍♂️'
+    pool: 'Бассейн',
+    bar: 'Бар',
+    room: 'Бани & VIP'
   }
   return map[cat] || cat
+}
+
+const getCategoryIcon = (cat) => {
+  const map = {
+    pool: UserGroupIcon,
+    bar: BeakerIcon,
+    room: FireIcon
+  }
+  return map[cat] || SparklesIcon
+}
+
+const getCategoryIconClass = (cat) => {
+  const map = {
+    pool: 'text-blue-400',
+    bar: 'text-emerald-400',
+    room: 'text-purple-400'
+  }
+  return map[cat] || 'text-gray-400'
 }
 
 const getCategoryBadgeClass = (cat) => {

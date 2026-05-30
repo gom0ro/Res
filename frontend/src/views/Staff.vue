@@ -25,24 +25,26 @@
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-2 bg-dark-surface/50 p-1.5 rounded-2xl border border-dark-border/50 w-fit">
+    <div class="flex flex-col sm:flex-row gap-2 bg-dark-surface/50 p-1.5 rounded-2xl border border-dark-border/50 w-full sm:w-fit">
       <button
         @click="activeTab = 'users'"
-        class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300"
+        class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 flex-1 w-full sm:w-auto"
         :class="activeTab === 'users'
           ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-500/25'
           : 'text-gray-400 hover:text-white hover:bg-white/5'"
       >
-        🧑‍🤝‍🧑 Персонал ({{ users.length }})
+        <UsersIcon class="w-4 h-4"/>
+        <span>Персонал ({{ users.length }})</span>
       </button>
       <button
         @click="activeTab = 'roles'"
-        class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300"
+        class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 flex-1 w-full sm:w-auto"
         :class="activeTab === 'roles'
           ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg shadow-purple-500/25'
           : 'text-gray-400 hover:text-white hover:bg-white/5'"
       >
-        🔑 Роли доступа ({{ roles.length }})
+        <KeyIcon class="w-4 h-4"/>
+        <span>Роли доступа ({{ roles.length }})</span>
       </button>
     </div>
 
@@ -258,6 +260,7 @@
 import { ref, onMounted } from 'vue'
 import { api } from '../stores/auth'
 import { toast } from 'vue3-toastify'
+import { UsersIcon, KeyIcon } from '@heroicons/vue/24/solid'
 
 const activeTab = ref('users')
 const loading = ref(false)
