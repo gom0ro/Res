@@ -20,6 +20,7 @@ class Lounger(Base):
     price_per_hour = Column(Float, default=0.0)
     
     current_booking_id = Column(Integer, ForeignKey("bookings.id"), nullable=True)
+    reservation_time = Column(String, nullable=True)
     
     # Active orders associated with this lounger
     orders = relationship("Order", back_populates="lounger")

@@ -4,9 +4,8 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from typing import List
 from app.core.database import get_db
-from app.models.stock import StockReceipt
-from app.models.bar import BarProduct
-from app.schemas.stock import StockReceiptCreate, StockReceiptOut
+from app.models.stock import StockReceipt, StockItem
+from app.schemas.stock import StockReceiptCreate, StockReceiptOut, StockItemCreate
 
 router = APIRouter()
 
@@ -28,22 +27,23 @@ async def get_receipts(db: AsyncSession = Depends(get_db)):
             sell_price=r.sell_price,
             note=r.note,
             created_at=r.created_at,
-            product_name=r.product.name if r.product else None
+            product_name=r.product.name if r.product else None,
+            product_unit=r.product.unit if r.product else "кг"
         ))
     return out
 
 @router.post("/", response_model=StockReceiptOut)
 async def create_receipt(receipt_in: StockReceiptCreate, db: AsyncSession = Depends(get_db)):
-    # Check product exists
-    prod_res = await db.execute(select(BarProduct).filter(BarProduct.id == receipt_in.product_id))
-    product = prod_res.scalars().first()
-    if not product:
-        raise HTTPException(status_code=404, detail="Товар не найден")
+    # Check item exists
+    item_res = await db.execute(select(StockItem).filter(StockItem.id == receipt_in.product_id))
+    item = item_res.scalars().first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Ингредиент на складе не найден")
 
-    # Update product stock and sell price
-    product.stock_quantity += receipt_in.quantity
-    product.price = receipt_in.sell_price
-    db.add(product)
+    # Update item stock and unit price
+    item.stock_quantity += receipt_in.quantity
+    item.price = receipt_in.sell_price
+    db.add(item)
 
     receipt = StockReceipt(
         product_id=receipt_in.product_id,
@@ -64,11 +64,32 @@ async def create_receipt(receipt_in: StockReceiptCreate, db: AsyncSession = Depe
         sell_price=receipt.sell_price,
         note=receipt.note,
         created_at=receipt.created_at,
-        product_name=product.name
+        product_name=item.name,
+        product_unit=item.unit
     )
 
 @router.get("/products", response_model=List[dict])
 async def get_products_for_stock(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(BarProduct).filter(BarProduct.is_active == True))
-    products = result.scalars().all()
-    return [{"id": p.id, "name": p.name, "price": p.price, "stock_quantity": p.stock_quantity} for p in products]
+    result = await db.execute(select(StockItem).filter(StockItem.is_active == True))
+    items = result.scalars().all()
+    return [{"id": i.id, "name": i.name, "price": i.price, "stock_quantity": i.stock_quantity, "unit": i.unit} for i in items]
+
+@router.post("/items", response_model=dict)
+async def create_stock_item(item_in: StockItemCreate, db: AsyncSession = Depends(get_db)):
+    # Check if duplicate name
+    existing_res = await db.execute(select(StockItem).filter(StockItem.name == item_in.name))
+    existing = existing_res.scalars().first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Ингредиент с таким названием уже существует")
+
+    item = StockItem(
+        name=item_in.name,
+        unit=item_in.unit,
+        price=item_in.price,
+        stock_quantity=0.0
+    )
+    db.add(item)
+    await db.commit()
+    await db.refresh(item)
+    return {"id": item.id, "name": item.name, "unit": item.unit, "price": item.price, "stock_quantity": item.stock_quantity}
+

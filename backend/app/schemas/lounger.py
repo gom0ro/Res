@@ -14,6 +14,7 @@ class Lounger(LoungerBase):
     id: int
     status: LoungerStatus
     current_booking_id: Optional[int] = None
+    reservation_time: Optional[str] = None
 
     class Config:
         from_attributes = True

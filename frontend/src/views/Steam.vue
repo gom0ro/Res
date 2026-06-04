@@ -126,6 +126,11 @@
           <div v-if="room.status === 'occupied'" class="text-xs font-mono font-black z-10 text-red-300">
             {{ getElapsedTime(room.current_occupancy_start) }}
           </div>
+          
+          <!-- Reservation time if reserved -->
+          <div v-else-if="room.status === 'reserved' && room.reservation_time" class="text-xs font-black z-10 text-yellow-300">
+            Бронь: {{ room.reservation_time }}
+          </div>
 
           <!-- Price -->
           <div class="text-xs font-bold z-10 mt-1 opacity-70">{{ room.price_per_hour.toLocaleString() }} ₸/ч</div>
@@ -150,7 +155,7 @@
     <!-- Room Action Modal (click on room) -->
     <div v-if="selectedRoom" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-sm w-full shadow-2xl relative">
-        <button @click="selectedRoom = null" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
+        <button @click="selectedRoom = null; showBookingTimePrompt = false; bookingTimeInput = ''" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
 
         <div class="mb-1 text-xs font-bold text-gray-500 uppercase tracking-widest">
           {{ selectedRoom.room_type === 'steam_room' ? 'Баня / Сауна' : 'VIP Кабина' }}
@@ -160,16 +165,30 @@
 
         <!-- FREE: start rental -->
         <div v-if="selectedRoom.status === 'free'" class="space-y-3">
-          <button @click="occupyRoom(selectedRoom)" class="w-full py-4 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl font-bold shadow-lg transition-all">
-            Сдать в аренду
-          </button>
-          <div class="grid grid-cols-2 gap-2">
-            <button @click="changeStatus(selectedRoom.id, 'reserved'); selectedRoom = null" class="py-2.5 bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 rounded-xl font-bold text-sm transition-all">
-              Забронировать
+          <div v-if="!showBookingTimePrompt" class="space-y-3">
+            <button @click="occupyRoom(selectedRoom)" class="w-full py-4 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl font-bold shadow-lg transition-all">
+              Сдать в аренду
             </button>
-            <button @click="changeStatus(selectedRoom.id, 'maintenance'); selectedRoom = null" class="py-2.5 bg-gray-500/20 text-gray-400 hover:bg-gray-500/30 rounded-xl font-bold text-sm transition-all">
-              Обслуживание
-            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button @click="showBookingTimePrompt = true" class="py-2.5 bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 rounded-xl font-bold text-sm transition-all">
+                Забронировать
+              </button>
+              <button @click="changeStatus(selectedRoom.id, 'maintenance'); selectedRoom = null" class="py-2.5 bg-gray-500/20 text-gray-400 hover:bg-gray-500/30 rounded-xl font-bold text-sm transition-all">
+                Обслуживание
+              </button>
+            </div>
+          </div>
+          <div v-else class="space-y-3 p-3 bg-white/5 border border-dark-border rounded-2xl">
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Время / Имя для брони</label>
+            <input v-model="bookingTimeInput" type="text" placeholder="Например: Сегодня в 20:00" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-xl text-white text-sm outline-none focus:ring-2 focus:ring-orange-500">
+            <div class="grid grid-cols-2 gap-2 mt-2">
+              <button @click="showBookingTimePrompt = false; bookingTimeInput = ''" class="py-2 bg-dark-surface border border-dark-border text-gray-400 hover:text-white rounded-xl text-xs font-bold transition-all">
+                Отмена
+              </button>
+              <button @click="changeStatus(selectedRoom.id, 'reserved', bookingTimeInput); selectedRoom = null; showBookingTimePrompt = false; bookingTimeInput = ''" class="py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold transition-all">
+                Подтвердить
+              </button>
+            </div>
           </div>
         </div>
 
@@ -190,6 +209,9 @@
           <p class="text-center text-gray-400 text-sm py-2">
             {{ selectedRoom.status === 'reserved' ? 'Зал забронирован' : 'Зал на обслуживании' }}
           </p>
+          <div v-if="selectedRoom.status === 'reserved' && selectedRoom.reservation_time" class="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-center text-yellow-400 text-sm font-bold">
+            Время брони: {{ selectedRoom.reservation_time }}
+          </div>
           <button @click="changeStatus(selectedRoom.id, 'free'); selectedRoom = null" class="w-full py-3 bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded-xl font-bold text-sm transition-all">
             Освободить
           </button>
@@ -296,6 +318,8 @@ const rooms = ref([])
 const showSettings = ref(false)
 const selectedRoom = ref(null)
 const checkoutRoom = ref(null)
+const showBookingTimePrompt = ref(false)
+const bookingTimeInput = ref('')
 const invoice = ref(null)
 const selectedPayment = ref('cash')
 const currentTime = ref(new Date())
@@ -344,6 +368,8 @@ const deleteRoom = async (room) => {
 
 const handleRoomClick = (room) => {
   selectedRoom.value = { ...room }
+  showBookingTimePrompt.value = false
+  bookingTimeInput.value = ''
 }
 
 const occupyRoom = async (room) => {
@@ -376,9 +402,13 @@ const confirmCheckout = async () => {
   }
 }
 
-const changeStatus = async (roomId, status) => {
+const changeStatus = async (roomId, status, reservationTime = '') => {
   try {
-    await api.post(`/steam/${roomId}/status?status=${status}`)
+    let url = `/steam/${roomId}/status?status=${status}`
+    if (status === 'reserved' && reservationTime) {
+      url += `&reservation_time=${encodeURIComponent(reservationTime)}`
+    }
+    await api.post(url)
     fetchRooms()
   } catch (err) {
     toast.error('Не удалось изменить статус')

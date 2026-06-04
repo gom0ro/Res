@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from typing import List
+from typing import List, Optional
 from app.core.database import get_db
 from app.models.lounger import Lounger, LoungerStatus
 from app.schemas.lounger import Lounger as LoungerSchema, LoungerCreate
@@ -52,11 +52,23 @@ async def seed_loungers(db: AsyncSession = Depends(get_db)):
     return {"msg": "Seeded 16 loungers"}
 
 @router.post("/{lounger_id}/status")
-async def update_lounger_status(lounger_id: int, status: LoungerStatus, db: AsyncSession = Depends(get_db)):
+async def update_lounger_status(
+    lounger_id: int, 
+    status: LoungerStatus, 
+    reservation_time: Optional[str] = None, 
+    db: AsyncSession = Depends(get_db)
+):
     result = await db.execute(select(Lounger).filter(Lounger.id == lounger_id))
     lounger = result.scalars().first()
     if not lounger:
         raise HTTPException(status_code=404, detail="Топчан не найден")
     lounger.status = status
+    
+    if status == LoungerStatus.RESERVED:
+        lounger.reservation_time = reservation_time
+    else:
+        lounger.reservation_time = None
+        
+    db.add(lounger)
     await db.commit()
     return {"status": "ok"}

@@ -18,7 +18,7 @@ class Category(CategoryBase):
 class ProductBase(BaseModel):
     name: str
     price: float
-    stock_quantity: int = 0
+    stock_quantity: Optional[int] = None
     barcode: Optional[str] = None
     is_active: bool = True
     category_id: Optional[int] = None

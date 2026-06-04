@@ -146,7 +146,7 @@
             <h4 class="text-white text-sm font-bold truncate">{{ p.name }}</h4>
             <div class="flex justify-between items-center mt-auto pt-2">
               <span class="text-primary-400 font-black">{{ p.price }} ₸</span>
-              <span class="text-[10px] text-gray-500 font-medium">ост: {{ p.stock_quantity }}</span>
+              <span class="text-[10px] text-gray-500 font-medium">ост: {{ p.stock_quantity !== null ? p.stock_quantity : '∞' }}</span>
             </div>
           </div>
         </div>

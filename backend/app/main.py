@@ -32,6 +32,12 @@ async def startup_event():
         # await conn.run_sync(Base.metadata.drop_all) # uncomment to reset db
         await conn.run_sync(Base.metadata.create_all)
 
+    try:
+        from init_db import init_db
+        await init_db()
+    except Exception as e:
+        print(f"Error during startup DB initialization: {e}")
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to Resort Dashboard API"}

@@ -42,9 +42,22 @@ async def seed_bar(db: AsyncSession = Depends(get_db)):
     return {"msg": "Bar seeded successfully"}
 
 @router.get("/products", response_model=List[ProductSchema])
-async def get_products(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(BarProduct).filter(BarProduct.is_active == True))
-    return result.scalars().all()
+async def get_products(include_inactive: bool = False, db: AsyncSession = Depends(get_db)):
+    if include_inactive:
+        result = await db.execute(select(BarProduct))
+    else:
+        result = await db.execute(select(BarProduct).filter(BarProduct.is_active == True))
+    products = result.scalars().all()
+    # Dynamic stock quantity from StockItem if matching name exists
+    from app.models.stock import StockItem
+    for p in products:
+        item_res = await db.execute(select(StockItem).filter(StockItem.name == p.name))
+        item = item_res.scalars().first()
+        if item:
+            p.stock_quantity = int(item.stock_quantity)
+        else:
+            p.stock_quantity = None
+    return products
 
 @router.post("/products", response_model=ProductSchema)
 async def create_product(product_in: ProductCreate, db: AsyncSession = Depends(get_db)):
@@ -71,6 +84,56 @@ async def create_product(product_in: ProductCreate, db: AsyncSession = Depends(g
     await db.commit()
     await db.refresh(product)
     return product
+
+@router.put("/products/{product_id}", response_model=ProductSchema)
+async def update_product(
+    product_id: int, 
+    product_in: ProductCreate, 
+    db: AsyncSession = Depends(get_db)
+):
+    res = await db.execute(select(BarProduct).filter(BarProduct.id == product_id))
+    product = res.scalars().first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Товар не найден")
+        
+    product.name = product_in.name
+    product.price = product_in.price
+    product.stock_quantity = product_in.stock_quantity if product_in.stock_quantity is not None else 0
+    product.barcode = product_in.barcode
+    product.is_active = product_in.is_active
+    product.category_id = product_in.category_id
+    
+    db.add(product)
+    await db.commit()
+    await db.refresh(product)
+    return product
+
+@router.delete("/products/{product_id}")
+async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(BarProduct).filter(BarProduct.id == product_id))
+    product = res.scalars().first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Товар не найден")
+        
+    # Check if the product is in any active orders
+    active_orders_query = await db.execute(
+        select(Order)
+        .join(OrderItem)
+        .filter(
+            OrderItem.product_id == product_id,
+            Order.status.in_([OrderStatus.NEW, OrderStatus.PREPARING, OrderStatus.READY])
+        )
+    )
+    active_order = active_orders_query.scalars().first()
+    if active_order:
+        raise HTTPException(
+            status_code=400,
+            detail="Нельзя удалить блюдо, так как оно находится в активных заказах на кухне"
+        )
+        
+    await db.delete(product)
+    await db.commit()
+    return {"msg": "Товар успешно удален из меню"}
 
 @router.get("/categories", response_model=List[Category])
 async def get_categories(db: AsyncSession = Depends(get_db)):
@@ -175,15 +238,24 @@ async def create_bar_order(order_in: OrderCreate, db: AsyncSession = Depends(get
         if not product:
             raise HTTPException(status_code=404, detail=f"Товар с ID {item.product_id} не найден")
         
-        if product.stock_quantity < item.quantity:
-            raise HTTPException(
-                status_code=400, 
-                detail=f"Недостаточно товара '{product.name}' на складе. Доступно: {product.stock_quantity}"
-            )
+        # Check stock quantity from StockItem if there is a matching StockItem
+        from app.models.stock import StockItem
+        item_res = await db.execute(select(StockItem).filter(StockItem.name == product.name))
+        stock_item = item_res.scalars().first()
         
-        # Deduct stock
-        product.stock_quantity -= item.quantity
-        db.add(product)
+        if stock_item:
+            current_stock = stock_item.stock_quantity
+            if current_stock < item.quantity:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Недостаточно товара '{product.name}' на складе. Доступно: {current_stock}"
+                )
+            # Deduct stock
+            stock_item.stock_quantity -= item.quantity
+            db.add(stock_item)
+        else:
+            # Cooked dish / unlimited stock item - no deduction and no check!
+            pass
 
         # Calculate pricing
         price_at_time = product.price

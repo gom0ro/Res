@@ -3,13 +3,31 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Монитор Кухни (KDS)</h1>
-        <p class="text-gray-400 font-medium">Экран приготовления заказов в реальном времени</p>
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Кухня</h1>
+        <p class="text-gray-400 font-medium">Монитор заказов KDS и управление меню блюд</p>
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-        <span class="px-3 py-2 bg-dark-surface border border-dark-border text-gray-300 font-bold rounded-xl text-xs sm:text-sm shrink-0">
-          Всего в работе: {{ activeOrdersCount }}
-        </span>
+        <!-- Tab Toggle -->
+        <div class="bg-dark-surface border border-dark-border p-1 rounded-xl flex w-full sm:w-auto shrink-0">
+          <button 
+            @click="activeTab = 'orders'"
+            class="flex-1 sm:flex-none px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-colors"
+            :class="activeTab === 'orders' ? 'bg-orange-600 text-white shadow' : 'text-gray-400 hover:text-white'"
+          >
+            Заказы (KDS)
+            <span v-if="activeOrdersCount > 0" class="ml-1 px-1.5 py-0.5 bg-orange-500/20 text-orange-400 rounded text-[10px] font-black border border-orange-500/30">
+              {{ activeOrdersCount }}
+            </span>
+          </button>
+          <button 
+            @click="activeTab = 'menu'"
+            class="flex-1 sm:flex-none px-4 py-2 text-xs sm:text-sm font-bold rounded-lg transition-colors"
+            :class="activeTab === 'menu' ? 'bg-orange-600 text-white shadow' : 'text-gray-400 hover:text-white'"
+          >
+            Меню блюд
+          </button>
+        </div>
+
         <button @click="showCategoryModal = true; fetchCategories()" class="flex-1 md:flex-initial px-4 sm:px-5 py-2 sm:py-2.5 bg-dark-surface border border-dark-border hover:bg-white/5 text-gray-300 rounded-xl font-bold text-xs sm:text-sm text-center transition-all duration-300">
           Категории
         </button>
@@ -41,7 +59,7 @@
     </div>
 
     <!-- Kitchen Orders Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 flex-1 overflow-y-auto pr-2 custom-scrollbar h-full">
+    <div v-if="activeTab === 'orders'" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 flex-1 overflow-y-auto pr-2 custom-scrollbar h-full">
       <div 
         v-for="o in filteredOrders" 
         :key="o.id" 
@@ -108,12 +126,79 @@
       </div>
     </div>
 
-    <!-- Modal for Adding Dish -->
+    <!-- Kitchen Menu Grid -->
+    <div v-else-if="activeTab === 'menu'" class="flex-1 overflow-y-auto pr-2 custom-scrollbar h-full">
+      <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div 
+          v-for="p in filteredProducts" 
+          :key="p.id" 
+          class="bg-dark-surface/30 border rounded-2xl p-4 flex flex-col justify-between transition-all"
+          :class="p.is_active ? 'border-dark-border hover:border-orange-500/30' : 'border-red-500/10 bg-red-500/5'"
+        >
+          <div>
+            <div class="flex justify-between items-start gap-2 mb-2">
+              <h4 class="text-white font-bold text-sm leading-tight truncate" :class="{ 'opacity-50 line-through': !p.is_active }">
+                {{ p.name }}
+              </h4>
+              <span 
+                class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shrink-0"
+                :style="{ backgroundColor: getCategoryColor(p.category_id) + '20', color: getCategoryColor(p.category_id) }"
+              >
+                {{ getCategoryName(p.category_id) }}
+              </span>
+            </div>
+            <p class="text-orange-400 font-black text-base">{{ p.price }} ₸</p>
+            <p class="text-[11px] text-gray-500 mt-1">
+              Остаток: {{ p.stock_quantity !== null ? p.stock_quantity : 'без ограничений' }}
+            </p>
+          </div>
+
+          <div class="flex items-center justify-between border-t border-dark-border/50 pt-3 mt-4">
+            <span class="text-[11px] font-bold" :class="p.is_active ? 'text-emerald-400' : 'text-red-400'">
+              {{ p.is_active ? 'Активен' : 'Стоп-лист' }}
+            </span>
+            <div class="flex items-center gap-1.5">
+              <!-- Stop List Toggle -->
+              <button 
+                @click="toggleActiveStatus(p)"
+                class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all"
+                :class="p.is_active ? 'bg-red-500/15 text-red-400 hover:bg-red-500 hover:text-white' : 'bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500 hover:text-white'"
+              >
+                {{ p.is_active ? 'Стоп' : 'Старт' }}
+              </button>
+              
+              <!-- Edit -->
+              <button 
+                @click="openEditProductModal(p)"
+                class="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors"
+                title="Редактировать"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+              </button>
+              
+              <!-- Delete -->
+              <button 
+                @click="deleteProduct(p.id)"
+                class="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                title="Удалить товар"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-if="filteredProducts.length === 0" class="text-center py-20 text-gray-500">
+        Блюда в этой категории отсутствуют
+      </div>
+    </div>
+
+    <!-- Modal for Adding / Editing Dish -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-full md:max-w-md w-full shadow-2xl relative">
         <button @click="showAddModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
-        <h3 class="text-2xl font-bold text-white mb-6">Новое блюдо / Товар</h3>
-        <form @submit.prevent="createProduct" class="space-y-4">
+        <h3 class="text-2xl font-bold text-white mb-6">{{ isEditMode ? 'Редактировать блюдо' : 'Новое блюдо / Товар' }}</h3>
+        <form @submit.prevent="saveProduct" class="space-y-4">
           <div>
             <label class="block text-sm font-semibold text-gray-300 mb-2">Название блюда</label>
             <input v-model="newProduct.name" required type="text" placeholder="Например: Плов Ташкентский" class="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-xl text-white outline-none focus:ring-2 focus:ring-orange-500">
@@ -135,7 +220,9 @@
               <input v-model.number="newProduct.stock_quantity" required type="number" min="0" class="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-xl text-white outline-none focus:ring-2 focus:ring-orange-500">
             </div>
           </div>
-          <button type="submit" class="w-full py-3 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-lg transition-colors mt-4">Добавить в меню</button>
+          <button type="submit" class="w-full py-3 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold shadow-lg transition-colors mt-4">
+            {{ isEditMode ? 'Сохранить изменения' : 'Добавить в меню' }}
+          </button>
         </form>
       </div>
     </div>
@@ -228,7 +315,6 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -237,7 +323,13 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { api } from '../stores/auth'
 import { toast } from 'vue3-toastify'
 import { XMarkIcon as XIcon, TagIcon as UtensilsIcon } from '@heroicons/vue/24/solid'
+
+const activeTab = ref('orders')
+const isEditMode = ref(false)
+const editingProductId = ref(null)
+
 const orders = ref([])
+const products = ref([])
 const showAddModal = ref(false)
 const showCategoryModal = ref(false)
 const categories = ref([])
@@ -262,7 +354,7 @@ const newCategory = ref({
   name: '',
   description: '',
   color: '#4B5563',
-  icon: ''
+  icon: '🍲'
 })
 
 const activeOrdersCount = computed(() => orders.value.length)
@@ -274,11 +366,35 @@ const filteredOrders = computed(() => {
   )
 })
 
+const filteredProducts = computed(() => {
+  if (selectedKitchenCategoryId.value === null) return products.value
+  return products.value.filter(p => p.category_id === selectedKitchenCategoryId.value)
+})
+
 const fetchCategories = async () => {
   try {
     const res = await api.get('/bar/categories')
     categories.value = res.data
   } catch (e) {}
+}
+
+const fetchProducts = async () => {
+  try {
+    const res = await api.get('/bar/products?include_inactive=true')
+    products.value = res.data
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const getCategoryName = (catId) => {
+  const c = categories.value.find(cat => cat.id === catId)
+  return c ? c.name : 'Общее'
+}
+
+const getCategoryColor = (catId) => {
+  const c = categories.value.find(cat => cat.id === catId)
+  return c?.color || '#4B5563'
 }
 
 const createCategory = async () => {
@@ -298,7 +414,7 @@ const startEdit = (cat) => {
     name: cat.name,
     description: cat.description || '',
     color: cat.color || '#4B5563',
-    icon: cat.icon || '',
+    icon: '',
     position: cat.position || 0
   }
 }
@@ -326,25 +442,75 @@ const deleteCategory = async (id) => {
 }
 
 const openAddModal = () => {
+  isEditMode.value = false
+  editingProductId.value = null
+  newProduct.value = { name: '', price: 0, stock_quantity: 0, category_id: null }
   fetchCategories()
   showAddModal.value = true
 }
 
-const createProduct = async () => {
+const openEditProductModal = (p) => {
+  isEditMode.value = true
+  editingProductId.value = p.id
+  newProduct.value = {
+    name: p.name,
+    price: p.price,
+    stock_quantity: p.stock_quantity,
+    category_id: p.category_id
+  }
+  fetchCategories()
+  showAddModal.value = true
+}
+
+const toggleActiveStatus = async (product) => {
   try {
-    await api.post('/bar/products', newProduct.value)
+    const updated = {
+      name: product.name,
+      price: product.price,
+      stock_quantity: product.stock_quantity,
+      category_id: product.category_id,
+      is_active: !product.is_active
+    }
+    await api.put(`/bar/products/${product.id}`, updated)
+    toast.success(product.is_active ? 'Блюдо добавлено в стоп-лист' : 'Блюдо возвращено в меню')
+    await fetchProducts()
+  } catch (e) {
+    toast.error('Не удалось обновить статус блюда')
+  }
+}
+
+const deleteProduct = async (id) => {
+  if (!confirm('Вы уверены, что хотите удалить это блюдо из меню?')) return
+  try {
+    await api.delete(`/bar/products/${id}`)
+    toast.success('Блюдо удалено из меню')
+    await fetchProducts()
+  } catch (e) {
+    toast.error(e.response?.data?.detail || 'Не удалось удалить блюдо')
+  }
+}
+
+const saveProduct = async () => {
+  try {
+    if (isEditMode.value) {
+      await api.put(`/bar/products/${editingProductId.value}`, newProduct.value)
+      toast.success('Блюдо успешно обновлено')
+    } else {
+      await api.post('/bar/products', newProduct.value)
+      toast.success('Блюдо успешно добавлено в меню')
+      activeTab.value = 'menu'
+    }
     showAddModal.value = false
     newProduct.value = { name: '', price: 0, stock_quantity: 0, category_id: null }
-    toast.success('Блюдо успешно добавлено в меню')
+    await fetchProducts()
   } catch (err) {
-    toast.error(err.response?.data?.detail || 'Ошибка добавления')
+    toast.error(err.response?.data?.detail || 'Ошибка сохранения')
   }
 }
 
 const fetchKitchenOrders = async () => {
   try {
     const res = await api.get('/bar/orders')
-    // Show only orders that are 'new' or 'preparing'
     orders.value = res.data.filter(o => o.status === 'new' || o.status === 'preparing')
   } catch (err) {
     console.error("Error loading kitchen orders", err)
@@ -371,6 +537,7 @@ let pollInterval
 onMounted(() => {
   fetchKitchenOrders()
   fetchCategories()
+  fetchProducts()
   pollInterval = setInterval(fetchKitchenOrders, 5000) // Auto refresh every 5 seconds
 })
 

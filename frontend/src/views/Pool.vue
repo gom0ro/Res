@@ -197,8 +197,6 @@ const selectedPayment = ref('cash')
 const tariffs = [
   { key: 'adult',  label: 'Взрослый', price: 2000,  color: 'text-blue-400' },
   { key: 'child',  label: 'Детский',  price: 1000,  color: 'text-green-400' },
-  { key: 'daily',  label: 'Безлимит', price: 10000, color: 'text-purple-400' },
-  { key: 'vip',    label: 'VIP',      price: 5000,  color: 'text-yellow-400' },
 ]
 
 const form = ref({

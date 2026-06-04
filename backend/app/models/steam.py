@@ -24,3 +24,5 @@ class Room(Base):
     
     current_occupancy_start = Column(DateTime, nullable=True)
     current_occupancy_end = Column(DateTime, nullable=True)
+    
+    reservation_time = Column(String, nullable=True)

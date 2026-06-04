@@ -107,7 +107,7 @@
               </div>
               <h4 class="text-white font-bold text-sm leading-tight mb-1">{{ p.name }}</h4>
               <p class="text-orange-400 font-black">{{ p.price }} ₸</p>
-              <p class="text-xs text-gray-500 mt-1">Остаток: {{ p.stock_quantity }}</p>
+              <p class="text-xs text-gray-500 mt-1">Остаток: {{ p.stock_quantity !== null ? p.stock_quantity : 'без ограничений' }}</p>
             </div>
           </div>
           <div v-if="filteredProducts.length === 0" class="text-center py-10 text-gray-500">
@@ -586,14 +586,14 @@ const filteredProducts = computed(() => {
 })
 
 const addToCart = (product) => {
-  if (product.stock_quantity <= 0) {
+  if (product.stock_quantity !== null && product.stock_quantity <= 0) {
     toast.warning('Товар закончился на складе!')
     return
   }
   
   const existing = cart.value.find(item => item.product.id === product.id)
   if(existing) {
-    if (existing.quantity >= product.stock_quantity) {
+    if (product.stock_quantity !== null && existing.quantity >= product.stock_quantity) {
       toast.warning('Больше нет в наличии на складе')
       return
     }
@@ -611,7 +611,7 @@ const addToCart = (product) => {
 
 const increaseQty = (idx) => {
   const item = cart.value[idx]
-  if (item.quantity >= item.product.stock_quantity) {
+  if (item.product.stock_quantity !== null && item.quantity >= item.product.stock_quantity) {
     toast.warning('Превышен остаток товара на складе')
     return
   }

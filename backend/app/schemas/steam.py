@@ -16,6 +16,7 @@ class Room(RoomBase):
     status: RoomStatus
     current_occupancy_start: Optional[datetime] = None
     current_occupancy_end: Optional[datetime] = None
+    reservation_time: Optional[str] = None
 
     class Config:
         from_attributes = True

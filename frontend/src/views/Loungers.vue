@@ -96,8 +96,8 @@
         <div
           v-for="lounger in loungers"
           :key="lounger.id"
-          @click="toggleStatus(lounger)"
-          class="aspect-square rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 shadow-lg group relative overflow-hidden"
+          @click="handleLoungerClick(lounger)"
+          class="aspect-square rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 shadow-lg group relative overflow-hidden p-2 text-center"
           :class="{
             'bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20': lounger.status === 'free',
             'bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20': lounger.status === 'occupied',
@@ -105,14 +105,79 @@
           }"
         >
           <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <h3 class="text-2xl font-black mb-1 z-10">{{ lounger.number }}</h3>
-          <span class="text-xs font-bold uppercase tracking-wider opacity-70 z-10">{{ lounger.zone }}</span>
-          <div class="absolute bottom-2 font-medium text-xs z-10">{{ lounger.price_per_hour }} ₸/ч</div>
+          <h3 class="text-2xl font-black mb-0.5 z-10">{{ lounger.number }}</h3>
+          <span class="text-[10px] font-bold uppercase tracking-wider opacity-70 z-10 mb-1">{{ lounger.zone }}</span>
+          
+          <div v-if="lounger.status === 'reserved' && lounger.reservation_time" class="text-[10px] font-black z-10 text-yellow-300 mb-4 truncate w-full max-w-[90%]">
+            Бронь: {{ lounger.reservation_time }}
+          </div>
+          <div v-else class="h-4"></div>
+
+          <div class="absolute bottom-2 font-medium text-[10px] z-10 opacity-70">{{ lounger.price_per_hour }} ₸/ч</div>
         </div>
       </div>
 
       <div v-if="loungers.length === 0" class="text-center py-20 text-gray-500">
         Нет добавленных топчанов. Откройте «Настройки» чтобы добавить.
+      </div>
+    </div>
+
+    <!-- Lounger Action Modal -->
+    <div v-if="selectedLounger" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div class="bg-dark-surface border border-dark-border rounded-3xl p-8 max-w-sm w-full shadow-2xl relative text-white">
+        <button @click="selectedLounger = null; showBookingTimePrompt = false; bookingTimeInput = ''" class="absolute top-4 right-4 text-gray-400 hover:text-white"><XIcon class="w-5 h-5"/></button>
+
+        <div class="mb-1 text-xs font-bold text-gray-500 uppercase tracking-widest">
+          Топчан / Зона: {{ selectedLounger.zone }}
+        </div>
+        <h3 class="text-2xl font-black text-white mb-1">{{ selectedLounger.number }}</h3>
+        <p class="text-gray-400 text-sm mb-5">{{ selectedLounger.price_per_hour.toLocaleString() }} ₸/час</p>
+
+        <!-- FREE: Rent or Reserve -->
+        <div v-if="selectedLounger.status === 'free'" class="space-y-3">
+          <div v-if="!showBookingTimePrompt" class="space-y-3">
+            <button @click="changeStatus(selectedLounger.id, 'occupied'); selectedLounger = null" class="w-full py-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white rounded-xl font-bold shadow-lg transition-all">
+              Сдать в аренду
+            </button>
+            <button @click="showBookingTimePrompt = true" class="w-full py-3 bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 rounded-xl font-bold text-sm transition-all">
+              Забронировать
+            </button>
+          </div>
+          <div v-else class="space-y-3 p-3 bg-white/5 border border-dark-border rounded-2xl">
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Время / Имя для брони</label>
+            <input v-model="bookingTimeInput" type="text" placeholder="Например: 19:00 (Иван)" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-xl text-white text-sm outline-none focus:ring-2 focus:ring-purple-500">
+            <div class="grid grid-cols-2 gap-2 mt-2">
+              <button @click="showBookingTimePrompt = false; bookingTimeInput = ''" class="py-2 bg-dark-surface border border-dark-border text-gray-400 hover:text-white rounded-xl text-xs font-bold transition-all">
+                Отмена
+              </button>
+              <button @click="changeStatus(selectedLounger.id, 'reserved', bookingTimeInput); selectedLounger = null; showBookingTimePrompt = false; bookingTimeInput = ''" class="py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition-all">
+                Подтвердить
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- OCCUPIED: vacate -->
+        <div v-else-if="selectedLounger.status === 'occupied'" class="space-y-4">
+          <p class="text-center text-red-400 text-sm py-2 font-bold">Топчан занят клиентом</p>
+          <button @click="changeStatus(selectedLounger.id, 'free'); selectedLounger = null" class="w-full py-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white rounded-xl font-bold shadow-lg transition-all">
+            Освободить топчан
+          </button>
+        </div>
+
+        <!-- RESERVED -->
+        <div v-else class="space-y-3">
+          <p class="text-center text-gray-400 text-sm py-2">Топчан забронирован</p>
+          <div v-if="selectedLounger.reservation_time" class="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-center text-yellow-400 text-sm font-bold">
+            Время брони: {{ selectedLounger.reservation_time }}
+          </div>
+          <button @click="changeStatus(selectedLounger.id, 'free'); selectedLounger = null" class="w-full py-3 bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded-xl font-bold text-sm transition-all">
+            Освободить
+          </button>
+          <button @click="changeStatus(selectedLounger.id, 'occupied'); selectedLounger = null" class="w-full py-3 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-xl font-bold text-sm transition-all">
+            Сдать в аренду
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -122,9 +187,13 @@
 import { ref, onMounted } from 'vue'
 import { api } from '../stores/auth'
 import { toast } from 'vue3-toastify'
+import { XMarkIcon as XIcon } from '@heroicons/vue/24/solid'
 
 const loungers = ref([])
 const showSettings = ref(false)
+const selectedLounger = ref(null)
+const showBookingTimePrompt = ref(false)
+const bookingTimeInput = ref('')
 
 const newLounger = ref({
   number: '',
@@ -163,15 +232,20 @@ const deleteLounger = async (lounger) => {
   }
 }
 
-const toggleStatus = async (lounger) => {
-  const nextStatus = {
-    'free': 'occupied',
-    'occupied': 'reserved',
-    'reserved': 'free'
-  }[lounger.status] || 'free'
+const handleLoungerClick = (lounger) => {
+  selectedLounger.value = { ...lounger }
+  showBookingTimePrompt.value = false
+  bookingTimeInput.value = ''
+}
+
+const changeStatus = async (loungerId, status, reservationTime = '') => {
   try {
-    await api.post(`/loungers/${lounger.id}/status?status=${nextStatus}`)
-    lounger.status = nextStatus
+    let url = `/loungers/${loungerId}/status?status=${status}`
+    if (status === 'reserved' && reservationTime) {
+      url += `&reservation_time=${encodeURIComponent(reservationTime)}`
+    }
+    await api.post(url)
+    fetchLoungers()
   } catch (err) {
     toast.error('Ошибка изменения статуса')
   }
